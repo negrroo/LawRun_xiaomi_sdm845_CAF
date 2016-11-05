@@ -351,6 +351,8 @@ extern void read_persistent_clock64(struct timespec64 *ts);
 extern void read_boot_clock64(struct timespec64 *ts);
 extern int update_persistent_clock(struct timespec now);
 extern int update_persistent_clock64(struct timespec64 now);
+s64 get_total_sleep_time_nsec(void);
+
 
 
 #endif
