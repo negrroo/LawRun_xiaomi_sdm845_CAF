@@ -102,6 +102,19 @@ static void fdatawait_one_bdev(struct block_device *bdev, void *arg)
 	filemap_fdatawait_keep_errors(bdev->bd_inode->i_mapping);
 }
 
+/*
+ * Sync all the data for all the filesystems
+ * Called by reboot auto fsync
+ */
+void sync_filesystems(int wait)
+{
+	iterate_supers(sync_inodes_one_sb, NULL);
+	iterate_supers(sync_fs_one_sb, &wait);
+	iterate_supers(sync_fs_one_sb, &wait);
+	iterate_bdevs(fdatawrite_one_bdev, NULL);
+	iterate_bdevs(fdatawait_one_bdev, NULL);
+}
+
 #ifdef CONFIG_DYNAMIC_FSYNC
 /*
  * Sync all the data for all the filesystems (called by sys_sync() and

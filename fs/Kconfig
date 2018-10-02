@@ -312,6 +312,12 @@ endif # NETWORK_FILESYSTEMS
 source "fs/nls/Kconfig"
 source "fs/dlm/Kconfig"
 
+config REBOOT_AUTO_FSYNC
+	bool "automatic file sync on reboot/panic"
+	default y
+	help
+	  Force automatic file sync on power off, reboot, panic/freeze
+
 config DYNAMIC_FSYNC
 	bool "dynamic file sync control"
 	default n
