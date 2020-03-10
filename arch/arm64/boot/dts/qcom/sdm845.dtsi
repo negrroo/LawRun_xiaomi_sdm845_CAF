@@ -4001,6 +4001,7 @@
 		compatible = "qcom,msm-hw-limits";
 		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
 		qcom,affinity = <0>;
+		qcom,legacy-lmh-enable;
 		#thermal-sensor-cells = <0>;
 	};
 
@@ -4008,6 +4009,7 @@
 		compatible = "qcom,msm-hw-limits";
 		interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
 		qcom,affinity = <1>;
+		qcom,legacy-lmh-enable;
 		#thermal-sensor-cells = <0>;
 		isens_vref-supply = <&pm8998_l1_ao>;
 		isens-vref-settings = <880000 880000 20000>;
