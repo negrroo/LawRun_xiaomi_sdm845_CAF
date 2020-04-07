@@ -65,6 +65,8 @@
 		qcom,ulps-enabled;
 		qcom,suspend-ulps-enabled;
 
+		qcom,disp-doze-lpm-backlight = <20>;
+		qcom,disp-doze-hbm-backlight = <266>;
 		qcom,mdss-dsi-display-timings {
 			timing@0{
 				qcom,mdss-dsi-panel-width = <1080>;
