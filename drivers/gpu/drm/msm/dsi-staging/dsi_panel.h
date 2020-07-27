@@ -229,8 +229,6 @@ struct dsi_panel {
 
 	bool sync_broadcast_en;
 
-	struct dsi_panel_exd_config exd_config;
-
 	u32 panel_on_dimming_delay;
 	u32 last_bl_lvl;
 	struct delayed_work cmds_work;

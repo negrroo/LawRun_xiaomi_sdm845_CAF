@@ -532,8 +532,6 @@ static int dsi_panel_power_off(struct dsi_panel *panel)
 {
 	int rc = 0;
 
-	dsi_panel_exd_disable(panel);
-
 	if (g_panel->panel_reset_skip) {
 			pr_info("%s: panel reset skip\n", __func__);
 			return rc;
