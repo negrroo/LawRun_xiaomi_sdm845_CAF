@@ -4240,15 +4240,6 @@ struct usbpd *usbpd_create(struct device *parent)
 		goto put_psy;
 	}
 
-	/*
-	 * Need to set is_sxr_dp_sink to TRUE only when device tree node is
-	 * present, and sim_vid_display string is present in
-	 * boot_command_line string.
-	 */
-	if (sxr_dp_mode)
-		pd->is_sxr_dp_sink = device_property_present(parent,
-						"qcom,sxr1130-sxr-dp-sink");
-
 	ret = of_property_read_u32(parent->of_node, "mi,limit_pd_vbus", &pd->limit_pd_vbus);
 	if (ret) {
 		usbpd_err(&pd->dev, "failed to read pd vbus limit\n");
