@@ -1101,6 +1101,9 @@ static int dsi_panel_parse(struct device_node *of_node,
 	return 0;
 }
 
+static unsigned int framerate_override;
+module_param(framerate_override, uint, 0444);
+
 static int dsi_panel_parse_timing(struct device *parent,
 	struct dsi_mode_info *mode, const char *name,
 	struct device_node *of_node)
@@ -1128,6 +1131,16 @@ static int dsi_panel_parse_timing(struct device *parent,
 	}
 
 	mode->clk_rate_hz = !rc ? tmp64 : 0;
+	if (tmp64 == 1100000000 || tmp64 == 1103000000) {
+		if (framerate_override == 4)
+			mode->clk_rate_hz = 1375000000;
+		else if (framerate_override == 3)
+			mode->clk_rate_hz = 1320000000;
+		else if (framerate_override == 2)
+			mode->clk_rate_hz = 1265000000;
+		else if (framerate_override == 1)
+			mode->clk_rate_hz = 1210000000;
+	}
 	display_mode->priv_info->clk_rate_hz = mode->clk_rate_hz;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
@@ -1153,6 +1166,26 @@ static int dsi_panel_parse_timing(struct device *parent,
 		goto error;
 	}
 
+	if (mode->refresh_rate == 60) {
+		if (framerate_override == 7)
+			mode->refresh_rate = 71;
+		else if (framerate_override == 6)
+			mode->refresh_rate = 69;
+		else if (framerate_override == 5)
+			mode->refresh_rate = 68;
+		else if (framerate_override == 4)
+			mode->refresh_rate = 67;
+		else if (framerate_override == 3)
+			mode->refresh_rate = 66;
+		else if (framerate_override == 2)
+			mode->refresh_rate = 65;
+		else if (framerate_override == 1)
+			mode->refresh_rate = 62;
+	}
+
+	if (framerate_override)
+		mode->h_front_porch = 32;
+
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-h-back-porch", &mode->h_back_porch);
 	if (rc) {
@@ -1160,6 +1193,8 @@ static int dsi_panel_parse_timing(struct device *parent,
 		       rc);
 		goto error;
 	}
+	if (framerate_override)
+		mode->h_back_porch = 16;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-h-pulse-width", &mode->h_sync_width);
@@ -1168,6 +1203,8 @@ static int dsi_panel_parse_timing(struct device *parent,
 		       rc);
 		goto error;
 	}
+	if (framerate_override)
+		mode->h_sync_width = 16;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-h-sync-skew", &mode->h_skew);
@@ -1193,6 +1230,8 @@ static int dsi_panel_parse_timing(struct device *parent,
 		       rc);
 		goto error;
 	}
+	if (framerate_override)
+		mode->h_sync_width = 16;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-v-front-porch", &mode->v_front_porch);
@@ -1201,6 +1240,8 @@ static int dsi_panel_parse_timing(struct device *parent,
 		       rc);
 		goto error;
 	}
+	if (framerate_override)
+		mode->h_sync_width = 8;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-v-pulse-width", &mode->v_sync_width);
@@ -1209,6 +1250,8 @@ static int dsi_panel_parse_timing(struct device *parent,
 		       rc);
 		goto error;
 	}
+	if (framerate_override)
+		mode->h_sync_width = 8;
 	pr_debug("panel vert active:%d front_portch:%d back_porch:%d pulse_width:%d\n",
 		mode->v_active, mode->v_front_porch, mode->v_back_porch,
 		mode->v_sync_width);
