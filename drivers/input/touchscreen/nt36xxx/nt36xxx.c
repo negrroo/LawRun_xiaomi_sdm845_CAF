@@ -1221,6 +1221,7 @@ static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 	pm_qos_update_request(&ts->pm_qos_req, 100);
 	nvt_ts_work_func();
 	pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
+	input_sync(ts->input_dev);
 
 	return IRQ_HANDLED;
 }
@@ -2020,6 +2021,8 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	/* we should enable the reg for lpwg mode */
 	/*nvt_enable_reg(ts, true);*/
 
+		ts->pm_qos_req.type = PM_QOS_REQ_AFFINE_IRQ;
+		ts->pm_qos_req.irq = ts->client->irq;
 	pm_qos_add_request(&ts->pm_qos_req, PM_QOS_CPU_DMA_LATENCY,
 			PM_QOS_DEFAULT_VALUE);
 
@@ -2192,6 +2195,7 @@ static int32_t nvt_ts_remove(struct i2c_client *client)
 	if (drm_unregister_client(&ts->notifier))
 		NVT_ERR("Error occurred while unregistering drm_notifier.\n");
 #endif
+	pm_qos_remove_request(&ts->pm_qos_req);
 	destroy_workqueue(ts->event_wq);
 
 	nvt_get_reg(ts, false);
