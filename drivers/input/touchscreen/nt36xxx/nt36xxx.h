@@ -154,8 +154,6 @@ struct nvt_ts_data {
 	size_t config_array_size;
 	int current_index;
 	bool dev_pm_suspend;
-	bool palm_sensor_changed;
-	bool palm_sensor_switch;
 	struct completion dev_pm_suspend_completion;
 	struct work_struct resume_work;
 	struct workqueue_struct *event_wq;
@@ -208,7 +206,6 @@ extern int32_t nvt_check_fw_reset_state(RST_COMPLETE_STATE check_reset_state);
 extern int32_t nvt_get_fw_info(void);
 extern int32_t nvt_clear_fw_status(void);
 extern int32_t nvt_check_fw_status(void);
-int32_t nvt_set_pocket_palm_switch(uint8_t pocket_palm_switch);
 extern void nvt_stop_crc_reboot(void);
 extern int32_t nvt_get_lockdown_info(char *lockdata);
 
