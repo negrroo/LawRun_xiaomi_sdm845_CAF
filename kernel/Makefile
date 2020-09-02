@@ -137,8 +137,6 @@ else ifeq ($(CONFIG_MACH_XIAOMI_E8),y)
 $(obj)/config_data.gz: arch/arm64/configs/stock-ursa_defconfig FORCE
 else ifeq ($(CONFIG_MACH_XIAOMI_E5),y)
 $(obj)/config_data.gz: arch/arm64/configs/stock-perseus_defconfig FORCE
-else
-$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
 endif
 	$(call if_changed,gzip)
 
