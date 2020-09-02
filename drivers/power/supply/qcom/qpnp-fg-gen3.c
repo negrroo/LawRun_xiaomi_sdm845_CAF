@@ -5278,7 +5278,7 @@ static int fg_parse_ki_coefficients(struct fg_chip *chip)
 #define DEFAULT_RECHARGE_SOC_THR	95
 #define DEFAULT_BATT_TEMP_COLD		0
 #define DEFAULT_BATT_TEMP_COOL		5
-#define DEFAULT_BATT_TEMP_WARM		48
+#define DEFAULT_BATT_TEMP_WARM		45
 #define DEFAULT_BATT_TEMP_HOT		50
 #define DEFAULT_CL_START_SOC		15
 #define DEFAULT_CL_MIN_TEMP_DECIDEGC	150
@@ -5764,7 +5764,7 @@ static void soc_work_fn(struct work_struct *work)
 		return;
 	}
 
-	if (temp < 480 && chip->last_batt_temp >= 480) {
+	if (temp < 450 && chip->last_batt_temp >= 450) {
 		/* follow the way that fg_notifier_cb use wake lock */
 		pm_stay_awake(chip->dev);
 		schedule_work(&chip->status_change_work);
