@@ -1732,7 +1732,7 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	nvt_get_reg(ts, true);
 
 	/* we should enable the reg for lpwg mode */
-	/*nvt_enable_reg(ts, true);*/
+	nvt_enable_reg(ts, true);
 
 		ts->pm_qos_req.type = PM_QOS_REQ_AFFINE_IRQ;
 		ts->pm_qos_req.irq = ts->client->irq;
