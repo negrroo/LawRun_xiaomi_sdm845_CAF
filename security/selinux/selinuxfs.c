@@ -129,7 +129,6 @@ static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
 #define SEL_INO_MASK			0x00ffffff
 
 #define TMPBUFLEN	12
-static int enforcing_status = 1;
 static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
 				size_t count, loff_t *ppos)
 {
@@ -139,18 +138,6 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
 	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", selinux_enforcing);
 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
 }
-
-static int __init selinux_permissive_param(char *str)
-{
-	if (*str)
-		return 0;
-
-	enforcing_status = 0;
-	pr_info("selinux: ROM requested to be permissive, disabling spoofing\n");
-
-	return 1;
-}
-__setup("androidboot.selinux=permissive", selinux_permissive_param);
 
 #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
 static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
