@@ -38,7 +38,7 @@
 				reg = <1>;
 				label = "llcc-off";
 				qcom,psci-mode = <0xC24>;
-				qcom,entry-latency-us = <3263>;
+				qcom,entry-latency-us = <-1565>;
 				qcom,exit-latency-us = <6562>;
 				qcom,min-residency-us = <9987>;
 				qcom,min-child-idx = <2>;
@@ -69,9 +69,9 @@
 					reg = <1>;
 					label = "pc";
 					qcom,psci-cpu-mode = <0x3>;
-					qcom,entry-latency-us = <350>;
+					qcom,entry-latency-us = <39>;
 					qcom,exit-latency-us = <461>;
-					qcom,min-residency-us = <1890>;
+					qcom,min-residency-us = <5990>;
 					qcom,is-reset;
 					qcom,use-broadcast-timer;
 				};
@@ -80,7 +80,7 @@
 					reg = <2>;
 					label = "rail-pc";
 					qcom,psci-cpu-mode = <0x4>;
-					qcom,entry-latency-us = <360>;
+					qcom,entry-latency-us = <69>;
 					qcom,exit-latency-us = <531>;
 					qcom,min-residency-us = <3934>;
 					qcom,is-reset;
@@ -103,7 +103,7 @@
 					reg = <0>;
 					label = "wfi";
 					qcom,psci-cpu-mode = <0x1>;
-					qcom,entry-latency-us = <57>;
+					qcom,entry-latency-us = <40>;
 					qcom,exit-latency-us = <43>;
 					qcom,min-residency-us = <83>;
 				};
@@ -114,7 +114,7 @@
 					qcom,psci-cpu-mode = <0x3>;
 					qcom,entry-latency-us = <264>;
 					qcom,exit-latency-us = <621>;
-					qcom,min-residency-us = <952>;
+					qcom,min-residency-us = <1001>;
 					qcom,is-reset;
 					qcom,use-broadcast-timer;
 				};
@@ -123,9 +123,9 @@
 					reg = <2>;
 					label = "rail-pc";
 					qcom,psci-cpu-mode = <0x4>;
-					qcom,entry-latency-us = <702>;
+					qcom,entry-latency-us = <-61>;
 					qcom,exit-latency-us = <1061>;
-					qcom,min-residency-us = <4488>;
+					qcom,min-residency-us = <1001>;
 					qcom,is-reset;
 					qcom,use-broadcast-timer;
 				};
