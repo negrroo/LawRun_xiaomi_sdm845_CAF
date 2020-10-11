@@ -212,7 +212,7 @@ void nvt_sw_reset_idle(void)
 	buf[1] = 0xA5;
 	CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
 
-	usleep_range(15000, 16000);
+	msleep(15);
 }
 
 /*******************************************************
@@ -1309,7 +1309,7 @@ static int8_t nvt_ts_check_chip_ver_trim(void)
 		buf[0] = 0x00;
 		buf[1] = 0x35;
 		CTP_I2C_WRITE(ts->client, I2C_HW_Address, buf, 2);
-		usleep_range(10000, 11000);
+		msleep(10);
 
 		buf[0] = 0xFF;
 		buf[1] = 0x01;
@@ -1361,7 +1361,7 @@ static int8_t nvt_ts_check_chip_ver_trim(void)
 			nvt_stop_crc_reboot();
 		}
 
-		usleep_range(10000, 11000);
+		msleep(10);
 	}
 
 out:
@@ -1633,7 +1633,7 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	}
 
 	/* need 10ms delay after POR(power on reset) */
-	usleep_range(10000, 11000);
+	msleep(10);
 	mutex_init(&ts->xbuf_lock);
 
 	/*---check chip version trim---*/
