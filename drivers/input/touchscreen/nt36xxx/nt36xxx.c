@@ -43,10 +43,12 @@
 
 #if NVT_TOUCH_EXT_PROC
 extern int32_t nvt_extra_proc_init(void);
+extern void nvt_extra_proc_remove(void);
 #endif
 
 #if NVT_TOUCH_MP
 extern int32_t nvt_mp_proc_init(void);
+extern void nvt_mp_proc_remove(void);
 #endif
 
 struct nvt_ts_data *ts;
@@ -602,6 +604,15 @@ static int32_t nvt_flash_proc_init(void)
 	return 0;
 }
 #endif
+
+static void nvt_flash_proc_remove(void)
+{
+	if (NVT_proc_entry != NULL) {
+		remove_proc_entry(DEVICE_NAME, NULL);
+		NVT_LOG("Removed %s under /proc\n",
+			  DEVICE_NAME);
+	}
+}
 
 #if WAKEUP_GESTURE
 #define GESTURE_WORD_C          12
@@ -1916,6 +1927,21 @@ err_init_NVT_ts:
 #endif
 	pm_qos_remove_request(&ts->pm_qos_req);
 	free_irq(client->irq, ts);
+
+	if (gpio_is_valid(ts->irq_gpio)) {
+		gpio_free(ts->irq_gpio);
+	}
+
+#if NVT_TOUCH_PROC
+	nvt_flash_proc_remove();
+#endif
+#if NVT_TOUCH_MP
+	nvt_mp_proc_remove();
+#endif
+#if NVT_TOUCH_EXT_PROC
+	nvt_extra_proc_remove();
+#endif
+
 #if BOOT_UPDATE_FIRMWARE
 err_create_nvt_fwu_wq_failed:
 #endif

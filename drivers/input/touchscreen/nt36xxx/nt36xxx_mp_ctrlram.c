@@ -1860,4 +1860,13 @@ int32_t nvt_mp_proc_init(void)
 	return 0;
 }
 
+void nvt_mp_proc_remove(void)
+{
+	if (NVT_proc_selftest_entry != NULL) {
+		remove_proc_entry("nvt_selftest", NULL);
+		NVT_LOG("Removed %s under /proc\n",
+			  "nvt_selftest");
+	}
+}
+
 #endif /* #if NVT_TOUCH_MP */
