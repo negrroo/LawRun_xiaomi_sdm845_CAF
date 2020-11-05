@@ -301,6 +301,7 @@
 	qcom,fcc-low-temp-delta = <2970000>;
 	qcom,fcc-hot-temp-delta = <1650000>;
 	qcom,fcc-cool-temp-delta = <2310000>;
+	google,usb-port-tz-name = "usbc-therm-monitor";
 	qcom,auto-recharge-soc;
         qcom,sw-jeita-enable;
 	qcom,dynamic-fv-enable;
@@ -855,8 +856,8 @@
 
 		trips {
 			active-config0 {
-				temperature = <125000>;
-				hysteresis = <10000>;
+				temperature = <65000>;
+				hysteresis = <1000>;
 				type = "passive";
 			};
 		};
@@ -871,8 +872,8 @@
 
 		trips {
 			active-config0 {
-				temperature = <125000>;
-				hysteresis = <10000>;
+				temperature = <65000>;
+				hysteresis = <1000>;
 				type = "passive";
 			};
 		};
@@ -888,8 +889,8 @@
 
 		trips {
 			active-config0 {
-				temperature = <125000>;
-				hysteresis = <10000>;
+				temperature = <65000>;
+				hysteresis = <1000>;
 				type = "passive";
 			};
 		};
@@ -955,8 +956,8 @@
 
 		trips {
 			active-config0 {
-				temperature = <125000>;
-				hysteresis = <10000>;
+				temperature = <65000>;
+				hysteresis = <1000>;
 				type = "passive";
 			};
 			shutdown-config {
@@ -975,8 +976,8 @@
 
 		trips {
 			active-config0 {
-				temperature = <125000>;
-				hysteresis = <10000>;
+				temperature = <65000>;
+				hysteresis = <1000>;
 				type = "passive";
 			};
 		};
@@ -991,8 +992,8 @@
 
 		trips {
 			active-config0 {
-				temperature = <125000>;
-				hysteresis = <10000>;
+				temperature = <65000>;
+				hysteresis = <1000>;
 				type = "passive";
 			};
 		};
@@ -1007,8 +1008,8 @@
 
 		trips {
 			active-config0 {
-				temperature = <125000>;
-				hysteresis = <10000>;
+				temperature = <65000>;
+				hysteresis = <1000>;
 				type = "passive";
 			};
 		};
@@ -1022,8 +1023,8 @@
 
 		trips {
 			active-config0 {
-				temperature = <125000>;
-				hysteresis = <10000>;
+				temperature = <65000>;
+				hysteresis = <1000>;
 				type = "passive";
 			};
 		};
