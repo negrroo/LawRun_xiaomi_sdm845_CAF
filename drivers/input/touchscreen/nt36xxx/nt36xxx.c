@@ -279,7 +279,7 @@ int32_t nvt_clear_fw_status(void)
 
 	if (i >= retry) {
 		NVT_ERR("failed, i=%d, buf[1]=0x%02X\n", i, buf[1]);
-		return -EPERM;
+		return -1;
 	} else {
 		return 0;
 	}
@@ -1081,7 +1081,7 @@ static int nvt_input_event(struct input_dev *dev, unsigned int type, unsigned in
 		NVT_LOG("set input event value = %d\n", value);
 
 		if (value >= INPUT_EVENT_START && value <= INPUT_EVENT_END) {
-			ms = (struct nvt_mode_switch *)kmalloc(sizeof(struct nvt_mode_switch), GFP_ATOMIC);
+			ms = (struct nvt_mode_switch *)kzalloc(sizeof(struct nvt_mode_switch), GFP_ATOMIC);
 
 			if (ms != NULL) {
 				ms->nvt_data = data;
@@ -1145,13 +1145,12 @@ static void nvt_ts_work_func(void)
 	}
 
 #if WAKEUP_GESTURE
-	if (unlikely(bTouchIsAwake == 0)) {
+	if (likely(bTouchIsAwake == 0)) {
 		input_id = (uint8_t)(point_data[1] >> 3);
 		nvt_ts_wakeup_gesture_report(input_id, point_data);
        pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
 		mutex_unlock(&ts->lock);
 		goto out;
-		return;
 	}
 #endif
 
@@ -1255,7 +1254,7 @@ return:
 static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 {
 	disable_irq_nosync(ts->client->irq);
-  	if (unlikely(bTouchIsAwake == 0)) {
+  	if (bTouchIsAwake == 0) {
 		dev_err(&ts->client->dev, "%s gesture wakeup\n", __func__);
         pm_wakeup_event(&ts->client->dev,1000);
 	} else {
