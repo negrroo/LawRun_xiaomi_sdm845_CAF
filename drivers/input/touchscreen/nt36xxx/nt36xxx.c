@@ -834,16 +834,25 @@ static int nvt_parse_dt(struct device *dev)
 }
 #endif
 
+static short fw_variant = 0;
+
 static const char *nvt_get_config(struct nvt_ts_data *ts)
 {
 	int i;
+    bool second = 0;
 
 	for (i = 0; i < ts->config_array_size; i++) {
 		if ((ts->lockdown_info[0] ==
 		     ts->config_array[i].tp_vendor) &&
 		     (ts->lockdown_info[3] ==
 		     ts->config_array[i].tp_hw_version))
-			break;
+            {
+                if( fw_variant == 1 && second == 0 )  {
+                    second = 1;
+                    continue;
+                }
+    			break;
+            }
 	}
 
 	if (i >= ts->config_array_size) {
@@ -857,6 +866,27 @@ static const char *nvt_get_config(struct nvt_ts_data *ts)
 
 	return ts->config_array[i].nvt_cfg_name;
 }
+
+int fw_variant_set(const char *val, const struct kernel_param *kp)
+{
+    unsigned short* pvalue = kp->arg; // Pointer to actual parameter variable.
+    int res = param_set_ushort(val, kp); // Use helper for write variable
+    if( res == 0 && fw_variant >= 0 && fw_variant <=1 )
+    {
+    	ts->fw_name = nvt_get_config(ts);
+        NVT_ERR("set firmware variant %d\n", *pvalue);
+        Boot_Update_Firmware(0);
+    }
+    return res;
+}
+
+const struct kernel_param_ops fw_variant_ops = 
+{
+    .set = &fw_variant_set, // Use our setter ...
+    .get = &param_get_ushort, // .. and standard getter
+};
+
+module_param_cb(fw_variant, &fw_variant_ops, &fw_variant, 0644);
 
 static int nvt_get_reg(struct nvt_ts_data *ts, bool get)
 {
@@ -1784,7 +1814,7 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	}
 	INIT_DELAYED_WORK(&ts->nvt_fwu_work, Boot_Update_Firmware);
 	/*please make sure boot update start after display reset(RESX) sequence*/
-	queue_delayed_work(nvt_fwu_wq, &ts->nvt_fwu_work, msecs_to_jiffies(14000));
+	//queue_delayed_work(nvt_fwu_wq, &ts->nvt_fwu_work, msecs_to_jiffies(14000));
 #endif
 
 	/*---set device node---*/

@@ -100,7 +100,8 @@ fw-shipped-$(CONFIG_TOUCHSCREEN_ST_FTS) += st_fts_e1_old.ftb
 fw-shipped-$(CONFIG_INPUT_PRESS_NDT_F60) += ndt_fw.bin
 fw-shipped-$(CONFIG_INPUT_PRESS_NDT_M65) += ndt_fw_m65.bin
 fw-shipped-$(CONFIG_TOUCHSCREEN_NT36XXX) += novatek_nt36672_e10.fw novatek_nt36672_e10_hw01.fw \
-						novatek_nt36672_e10_hw02.fw
+						novatek_nt36672_e10_hw02.fw \
+                        novatek_nt36672_e10_hw01_01.fw novatek_nt36672_e10_hw02_01.fw
 fw-shipped-$(CONFIG_TIGON3) += tigon/tg3.bin tigon/tg3_tso.bin \
 			       tigon/tg3_tso5.bin
 fw-shipped-$(CONFIG_TYPHOON) += 3com/typhoon.bin

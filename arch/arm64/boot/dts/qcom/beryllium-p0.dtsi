@@ -493,7 +493,7 @@
 		pinctrl-names = "pmx_ts_active", "pmx_ts_suspend";
 		pinctrl-0 = <&ts_int_active &ts_reset_active>;
 		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
-		novatek,config-array-size = <2>;
+		novatek,config-array-size = <4>;
 		novatek,cfg_0 {
 			novatek,tp-vendor = <0x46>;
 			novatek,hw-version = <0x1>;
@@ -503,6 +503,17 @@
 			novatek,tp-vendor = <0x46>;
 			novatek,hw-version = <0x2>;
 			novatek,fw-name = "novatek_nt36672_e10_hw02.fw";
+		};
+
+		novatek,cfg_2 {
+			novatek,tp-vendor = <0x46>;
+			novatek,hw-version = <0x1>;
+			novatek,fw-name = "novatek_nt36672_e10_hw01_01.fw";
+		};
+		novatek,cfg_3 {
+			novatek,tp-vendor = <0x46>;
+			novatek,hw-version = <0x2>;
+			novatek,fw-name = "novatek_nt36672_e10_hw02_01.fw";
 		};
 
 		/* MP */

@@ -993,6 +993,7 @@ void Boot_Update_Firmware(struct work_struct *work)
 	else
 		sprintf(firmware_name, BOOT_UPDATE_FIRMWARE_NAME);
 
+   NVT_ERR("Boot_Update_Firmware %s\n", firmware_name);
 	/* request bin file in "/etc/firmware" */
 	ret = update_firmware_request(firmware_name);
 	if (ret) {
