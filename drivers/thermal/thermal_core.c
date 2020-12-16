@@ -90,6 +90,11 @@ static atomic_t switch_mode = ATOMIC_INIT(10);
 static atomic_t temp_state = ATOMIC_INIT(0);
 static char boost_buf[128];
 
+static int lock_enable = 0;
+static int lock_sconfig = -1;
+module_param(lock_enable, int, 0644);
+module_param(lock_sconfig, int, 0644);
+
 static struct thermal_governor *__find_governor(const char *name)
 {
 	struct thermal_governor *pos;
@@ -2767,7 +2772,10 @@ thermal_sconfig_store(struct device *dev,
 
 	ret = kstrtoint(buf, 10, &val);
 
-	atomic_set(&switch_mode, val);
+	if(lock_enable)
+		atomic_set(&switch_mode, lock_sconfig);
+	else
+		atomic_set(&switch_mode, val);
 
 	if (ret)
 		return ret;
