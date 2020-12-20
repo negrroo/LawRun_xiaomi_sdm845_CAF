@@ -436,6 +436,7 @@
 
 &qupv3_se14_i2c {
 	status = "ok";
+	qcom,clk-freq-out = <400000>;
 	synaptics_dsi_i2c@20 {
 		compatible = "synaptics,dsx-i2c-force";
 		reg = <0x20>;

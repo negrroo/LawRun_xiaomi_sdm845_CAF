@@ -482,6 +482,7 @@
 
 &qupv3_se14_i2c {
 	status = "ok";
+	qcom,clk-freq-out = <400000>;
 	fts@49 {
 		compatible = "st,fts";
 		reg = <0x49>;
