@@ -1255,7 +1255,6 @@ static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 {
 	disable_irq_nosync(ts->client->irq);
   	if (bTouchIsAwake == 0) {
-		dev_err(&ts->client->dev, "%s gesture wakeup\n", __func__);
         pm_wakeup_event(&ts->client->dev,1000);
 	} else {
         pm_wakeup_event(&ts->client->dev,100);
