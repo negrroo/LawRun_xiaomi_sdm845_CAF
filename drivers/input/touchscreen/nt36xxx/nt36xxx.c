@@ -1103,7 +1103,7 @@ static void nvt_ts_work_func(void)
 
 	mutex_lock(&ts->lock);
 
-	if (ts->dev_pm_suspend) {
+	if (unlikely(ts->dev_pm_suspend)) {
 		ret = wait_for_completion_timeout(&ts->dev_pm_suspend_completion, msecs_to_jiffies(500));
 		if (!ret) {
 			NVT_ERR("system(i2c) can't finished resuming procedure, skip it\n");
@@ -1118,7 +1118,7 @@ static void nvt_ts_work_func(void)
 	}
 
 #if WAKEUP_GESTURE
-	if (unlikely(bTouchIsAwake == 0)) {
+	if (likely(bTouchIsAwake == 0)) {
 		input_id = (uint8_t)(point_data[1] >> 3);
 		nvt_ts_wakeup_gesture_report(input_id, point_data);
 		goto out;
@@ -1206,7 +1206,7 @@ return:
 static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 {
 	disable_irq_nosync(ts->client->irq);
-	if (unlikely(bTouchIsAwake == 0)) {
+	if (likely(bTouchIsAwake == 0)) {
 		dev_dbg(&ts->client->dev, "%s gesture wakeup\n", __func__);
 	}
 
