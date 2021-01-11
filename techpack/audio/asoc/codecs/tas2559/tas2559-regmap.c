@@ -537,7 +537,7 @@ void tas2559_enableIRQ(struct tas2559_priv *pTAS2559, enum channel chl, bool ena
 			/* check after 10 ms */
 			if (gpio_is_valid(pTAS2559->mnDevAGPIOIRQ)
 				|| gpio_is_valid(pTAS2559->mnDevBGPIOIRQ))
-				schedule_delayed_work(&pTAS2559->irq_work, msecs_to_jiffies(10));
+				queue_delayed_work(system_power_efficient_wq, &pTAS2559->irq_work, msecs_to_jiffies(10));
 		}
 		pTAS2559->mbIRQEnable = true;
 	} else {
@@ -858,7 +858,7 @@ static irqreturn_t tas2559_irq_handler(int irq, void *dev_id)
 	if (gpio_is_valid(pTAS2559->mnDevAGPIOIRQ)
 		|| gpio_is_valid(pTAS2559->mnDevBGPIOIRQ)) {
 		if (!delayed_work_pending(&pTAS2559->irq_work))
-			schedule_delayed_work(&pTAS2559->irq_work, msecs_to_jiffies(100));
+			queue_delayed_work(system_power_efficient_wq, &pTAS2559->irq_work, msecs_to_jiffies(100));
 	}
 
 	return IRQ_HANDLED;
@@ -967,7 +967,7 @@ static enum hrtimer_restart temperature_timer_func(struct hrtimer *timer)
 		if (gpio_is_valid(pTAS2559->mnDevAGPIOIRQ)
 			|| gpio_is_valid(pTAS2559->mnDevBGPIOIRQ)) {
 			if (!delayed_work_pending(&pTAS2559->irq_work))
-				schedule_delayed_work(&pTAS2559->irq_work, msecs_to_jiffies(20));
+				queue_delayed_work(system_power_efficient_wq, &pTAS2559->irq_work, msecs_to_jiffies(20));
 		}
 	}
 
