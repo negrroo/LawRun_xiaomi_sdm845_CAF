@@ -23,11 +23,12 @@
 
 #include <qdf_types.h>
 #include <i_host_diag_core_event.h>
-#ifdef CONFIG_MCL
+#ifdef FEATURE_RUNTIME_PM
 #include <cds_api.h>
 #include <hif.h>
 #endif
 #include <i_qdf_lock.h>
+#include <linux/suspend.h>
 
 /**
  * qdf_mutex_create() - Initialize a mutex
@@ -41,7 +42,7 @@
 QDF_STATUS qdf_mutex_create(qdf_mutex_t *lock, const char *func, int line)
 {
 	/* check for invalid pointer */
-	if (lock == NULL) {
+	if (!lock) {
 		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
 			  "%s: NULL pointer passed in", __func__);
 		return QDF_STATUS_E_FAULT;
@@ -90,7 +91,7 @@ QDF_STATUS qdf_mutex_acquire(qdf_mutex_t *lock)
 {
 	int rc;
 	/* check for invalid pointer */
-	if (lock == NULL) {
+	if (!lock) {
 		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
 			  "%s: NULL pointer passed in", __func__);
 		QDF_ASSERT(0);
@@ -168,7 +169,7 @@ qdf_export_symbol(qdf_mutex_acquire);
 QDF_STATUS qdf_mutex_release(qdf_mutex_t *lock)
 {
 	/* check for invalid pointer */
-	if (lock == NULL) {
+	if (!lock) {
 		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
 			  "%s: NULL pointer passed in", __func__);
 		QDF_ASSERT(0);
@@ -320,7 +321,19 @@ QDF_STATUS qdf_wake_lock_destroy(qdf_wake_lock_t *lock)
 }
 qdf_export_symbol(qdf_wake_lock_destroy);
 
-#ifdef CONFIG_MCL
+/**
+ * qdf_pm_system_wakeup() - wakeup system
+ *
+ * Return: None
+ */
+void qdf_pm_system_wakeup(void)
+{
+	pm_system_wakeup();
+}
+
+qdf_export_symbol(qdf_pm_system_wakeup);
+
+#ifdef FEATURE_RUNTIME_PM
 /**
  * qdf_runtime_pm_get() - do a get opperation on the device
  *
@@ -341,14 +354,14 @@ QDF_STATUS qdf_runtime_pm_get(void)
 
 	ol_sc = cds_get_context(QDF_MODULE_ID_HIF);
 
-	if (ol_sc == NULL) {
+	if (!ol_sc) {
 		QDF_ASSERT(0);
 		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
 			  "%s: HIF context is null!", __func__);
 		return QDF_STATUS_E_INVAL;
 	}
 
-	ret = hif_pm_runtime_get(ol_sc);
+	ret = hif_pm_runtime_get(ol_sc, RTPM_ID_RESVERD);
 
 	if (ret)
 		return QDF_STATUS_E_FAILURE;
@@ -374,14 +387,14 @@ QDF_STATUS qdf_runtime_pm_put(void)
 
 	ol_sc = cds_get_context(QDF_MODULE_ID_HIF);
 
-	if (ol_sc == NULL) {
+	if (!ol_sc) {
 		QDF_ASSERT(0);
 		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
 			  "%s: HIF context is null!", __func__);
 		return QDF_STATUS_E_INVAL;
 	}
 
-	ret = hif_pm_runtime_put(ol_sc);
+	ret = hif_pm_runtime_put(ol_sc, RTPM_ID_RESVERD);
 
 	if (ret)
 		return QDF_STATUS_E_FAILURE;
@@ -404,7 +417,7 @@ QDF_STATUS qdf_runtime_pm_prevent_suspend(qdf_runtime_lock_t *lock)
 
 	ol_sc = cds_get_context(QDF_MODULE_ID_HIF);
 
-	if (ol_sc == NULL) {
+	if (!ol_sc) {
 		QDF_ASSERT(0);
 		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
 			  "%s: HIF context is null!", __func__);
@@ -433,7 +446,7 @@ QDF_STATUS qdf_runtime_pm_allow_suspend(qdf_runtime_lock_t *lock)
 	int ret;
 
 	ol_sc = cds_get_context(QDF_MODULE_ID_HIF);
-	if (ol_sc == NULL) {
+	if (!ol_sc) {
 		QDF_ASSERT(0);
 		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
 		"%s: HIF context is null!", __func__);
@@ -521,7 +534,7 @@ void qdf_runtime_lock_deinit(qdf_runtime_lock_t *lock)
 }
 qdf_export_symbol(qdf_runtime_lock_deinit);
 
-#endif /* CONFIG_MCL */
+#endif /* FEATURE_RUNTIME_PM */
 
 /**
  * qdf_spinlock_acquire() - acquires a spin lock
@@ -574,7 +587,7 @@ qdf_export_symbol(qdf_spinlock_release);
 QDF_STATUS qdf_mutex_destroy(qdf_mutex_t *lock)
 {
 	/* check for invalid pointer */
-	if (NULL == lock) {
+	if (!lock) {
 		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
 			  "%s: NULL pointer passed in", __func__);
 		return QDF_STATUS_E_FAULT;
@@ -610,39 +623,6 @@ QDF_STATUS qdf_mutex_destroy(qdf_mutex_t *lock)
 	return QDF_STATUS_SUCCESS;
 }
 qdf_export_symbol(qdf_mutex_destroy);
-
-/**
- * qdf_spin_trylock_bh_outline() - spin trylock bottomhalf
- * @lock: spinlock object
- * Return: nonzero if lock is acquired
- */
-int qdf_spin_trylock_bh_outline(qdf_spinlock_t *lock)
-{
-	return qdf_spin_trylock_bh(lock);
-}
-qdf_export_symbol(qdf_spin_trylock_bh_outline);
-
-/**
- * qdf_spin_lock_bh_outline() - locks the spinlock in soft irq context
- * @lock: spinlock object pointer
- * Return: none
- */
-void qdf_spin_lock_bh_outline(qdf_spinlock_t *lock)
-{
-	qdf_spin_lock_bh(lock);
-}
-qdf_export_symbol(qdf_spin_lock_bh_outline);
-
-/**
- * qdf_spin_unlock_bh_outline() - unlocks spinlock in soft irq context
- * @lock: spinlock object pointer
- * Return: none
- */
-void qdf_spin_unlock_bh_outline(qdf_spinlock_t *lock)
-{
-	qdf_spin_unlock_bh(lock);
-}
-qdf_export_symbol(qdf_spin_unlock_bh_outline);
 
 #if QDF_LOCK_STATS_LIST
 struct qdf_lock_cookie {
@@ -695,7 +675,7 @@ static bool qdf_is_lock_cookie_free(struct qdf_lock_cookie *lock_cookie)
 {
 	struct qdf_lock_cookie *tmp = lock_cookie->u.empty_node.next;
 
-	return qdf_is_lock_cookie(tmp) || (tmp == NULL);
+	return qdf_is_lock_cookie(tmp) || (!tmp);
 }
 
 static struct qdf_lock_cookie *qdf_get_lock_cookie(void)
@@ -765,7 +745,7 @@ void qdf_lock_stats_cookie_create(struct lock_stats *stats,
 {
 	struct qdf_lock_cookie *cookie = qdf_get_lock_cookie();
 
-	if (cookie == NULL) {
+	if (!cookie) {
 		int count;
 
 		qdf_atomic_inc(&lock_cookie_get_failures);
@@ -784,10 +764,8 @@ void qdf_lock_stats_cookie_destroy(struct lock_stats *stats)
 {
 	struct qdf_lock_cookie *cookie = stats->cookie;
 
-	if (cookie == NULL) {
-		QDF_TRACE(QDF_MODULE_ID_QDF, QDF_TRACE_LEVEL_ERROR,
-			  "%s: Double cookie destroy", __func__);
-		QDF_ASSERT(0);
+	if (!cookie) {
+		QDF_DEBUG_PANIC("Lock destroyed twice or never created");
 		return;
 	}
 
