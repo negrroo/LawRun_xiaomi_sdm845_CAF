@@ -61,7 +61,6 @@
 
 
 /*---Touch info.---*/
-#define TOUCH_COORDS_ARR_SIZE	2
 #define TOUCH_DEFAULT_MAX_WIDTH 1080
 #define TOUCH_DEFAULT_MAX_HEIGHT 2246
 #define TOUCH_MAX_FINGER_NUM 10
@@ -130,8 +129,6 @@ struct nvt_ts_data {
 	uint8_t y_num;
 	uint16_t abs_x_max;
 	uint16_t abs_y_max;
-	uint16_t def_x_max;
-	uint16_t def_y_max;
 	uint8_t max_touch_num;
 	uint8_t max_button_num;
 	uint32_t int_trigger_type;
