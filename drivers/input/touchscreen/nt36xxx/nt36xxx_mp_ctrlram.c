@@ -1841,14 +1841,15 @@ return:
 *******************************************************/
 int32_t nvt_mp_proc_init(void)
 {
+	int32_t ret = 0;
 	NVT_proc_selftest_entry = proc_create("nvt_selftest", 0444, NULL, &nvt_selftest_fops);
 	if (NVT_proc_selftest_entry == NULL) {
 		NVT_ERR("create /proc/nvt_selftest Failed!\n");
-		return -1;
+		ret = -1;
 	} else {
 		if (nvt_mp_buffer_init()) {
 			NVT_ERR("Allocate mp memory failed\n");
-			return -1;
+			ret = -1;
 		}
 		else {
 			NVT_LOG("create /proc/nvt_selftest Succeeded!\n");
@@ -1857,7 +1858,7 @@ int32_t nvt_mp_proc_init(void)
 
 	ts->tp_selftest_proc = proc_create("tp_selftest", 0644, NULL, &nvt_selftest_ops);
 
-	return 0;
+	return ret;
 }
 
 void nvt_mp_proc_remove(void)
