@@ -279,7 +279,7 @@ int32_t nvt_clear_fw_status(void)
 
 	if (i >= retry) {
 		NVT_ERR("failed, i=%d, buf[1]=0x%02X\n", i, buf[1]);
-		return -1;
+		return -EPERM;
 	} else {
 		return 0;
 	}
@@ -1101,17 +1101,17 @@ return:
 *******************************************************/
 static void nvt_ts_work_func(void)
 {
-	int32_t ret;
-	uint8_t point_data[POINT_DATA_LEN + 1] = { 0, };
-	uint32_t position;
-	uint32_t input_x;
-	uint32_t input_y;
-	uint8_t input_id;
+	int32_t ret = -1;
+	uint8_t point_data[POINT_DATA_LEN + 1] = {0};
+	uint32_t position = 0;
+	uint32_t input_x = 0;
+	uint32_t input_y = 0;
+	uint8_t input_id = 0;
 #if MT_PROTOCOL_B
 	uint8_t press_id[TOUCH_MAX_FINGER_NUM] = {0};
 #endif /* MT_PROTOCOL_B */
-	int32_t i;
-	int32_t finger_cnt;
+	int32_t i = 0;
+	int32_t finger_cnt = 0;
 
 	dev_dbg(&ts->client->dev, "%s enter\n", __func__);
 
@@ -1139,6 +1139,7 @@ static void nvt_ts_work_func(void)
 		pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
 		mutex_unlock(&ts->lock);
 		goto out;
+		return;
 	}
 #endif
 
