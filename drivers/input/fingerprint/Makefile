@@ -7,3 +7,5 @@
 obj-$(CONFIG_FINGERPRINT_FPC_TEE)	+= fpc_tee/
 obj-$(CONFIG_FINGERPRINT_GOODIX_TA)	+= goodix_ta/
 obj-$(CONFIG_FINGERPRINT_SYNAPTICS4302)	+= synaptics/
+
+subdir-ccflags-y := -finline-functions -ftree-vectorize -funroll-loops
