@@ -31,6 +31,7 @@
 #include <linux/slab.h>
 #include <linux/regulator/consumer.h>
 #include <linux/hwinfo.h>
+#include <linux/cpu.h>
 
 #ifdef CONFIG_DRM
 #include <drm/drm_notifier.h>
@@ -2110,6 +2111,7 @@ static int drm_notifier_callback(struct notifier_block *self, unsigned long even
 	if (evdata && evdata->data && event == DRM_EARLY_EVENT_BLANK) {
 		blank = evdata->data;
 		if (*blank == DRM_BLANK_POWERDOWN) {
+				irq_set_affinity(ts->client->irq, cpumask_of(0));
 			if (ts->gesture_enabled) {
 				nvt_enable_reg(ts, true);
 				drm_panel_reset_skip_enable(true);
@@ -2120,6 +2122,7 @@ static int drm_notifier_callback(struct notifier_block *self, unsigned long even
 			screen_on = 0;
 			nvt_ts_suspend(&ts->client->dev);
 		} else if (*blank == DRM_BLANK_UNBLANK) {
+				irq_set_affinity(ts->client->irq, cpu_perf_mask);
 			if (ts->gesture_enabled) {
 				gpio_direction_output(ts->reset_tddi, 0);
 				msleep(15);
@@ -2130,6 +2133,7 @@ static int drm_notifier_callback(struct notifier_block *self, unsigned long even
 	} else if (evdata && evdata->data && event == DRM_EVENT_BLANK) {
 		blank = evdata->data;
 		if (*blank == DRM_BLANK_UNBLANK) {
+				irq_set_affinity(ts->client->irq, cpu_perf_mask);
 			if (ts->gesture_enabled) {
 				drm_panel_reset_skip_enable(false);
 				/*drm_dsi_ulps_enable(false);*/
