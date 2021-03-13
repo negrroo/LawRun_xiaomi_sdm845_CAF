@@ -1116,7 +1116,6 @@ static void nvt_ts_work_func(void)
 
 	dev_dbg(&ts->client->dev, "%s enter\n", __func__);
 
-	mutex_lock(&ts->lock);
 	pm_qos_update_request(&ts->pm_qos_req, 100);
 
 	if (unlikely(ts->dev_pm_suspend)) {
@@ -1126,6 +1125,14 @@ static void nvt_ts_work_func(void)
 			goto out;
 		}
 	}
+
+#if WAKEUP_GESTURE
+	if (bTouchIsAwake == 0) {
+		pm_wakeup_event(&ts->input_dev->dev, 5000);
+	}
+#endif
+
+	mutex_lock(&ts->lock);
 
 	ret = CTP_I2C_READ(ts->client, I2C_FW_Address, point_data, POINT_DATA_LEN + 1);
 	if (unlikely(ret < 0)) {
@@ -1138,9 +1145,7 @@ static void nvt_ts_work_func(void)
 		input_id = (uint8_t)(point_data[1] >> 3);
 		nvt_ts_wakeup_gesture_report(input_id, point_data);
 		pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
-		mutex_unlock(&ts->lock);
 		goto out;
-		return;
 	}
 #endif
 
@@ -1176,7 +1181,6 @@ static void nvt_ts_work_func(void)
 		}
 	}
 
-#if MT_PROTOCOL_B
 	for (i = 0; i < ts->max_touch_num; i++) {
 		if (likely(press_id[i] != 1)) {
 			input_mt_slot(ts->input_dev, i);
@@ -1186,12 +1190,6 @@ static void nvt_ts_work_func(void)
 	}
 
 	input_report_key(ts->input_dev, BTN_TOUCH, (finger_cnt > 0));
-#else /* MT_PROTOCOL_B */
-	if (finger_cnt == 0) {
-		input_report_key(ts->input_dev, BTN_TOUCH, 0);
-		input_mt_sync(ts->input_dev);
-	}
-#endif /* MT_PROTOCOL_B */
 
 #if TOUCH_KEY_NUM > 0
 	if (point_data[61] == 0xF8) {
@@ -1205,12 +1203,13 @@ static void nvt_ts_work_func(void)
 	}
 #endif
 
-	input_sync(ts->input_dev);
-
 out:
 
-	enable_irq(ts->client->irq);
 	pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
+
+	input_sync(ts->input_dev);
+
+	enable_irq(ts->client->irq);
 
 	mutex_unlock(&ts->lock);
 }
@@ -1227,7 +1226,7 @@ static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 	disable_irq_nosync(ts->client->irq);
 	if (likely(bTouchIsAwake == 0)) {
 		dev_dbg(&ts->client->dev, "%s gesture wakeup\n", __func__);
-        pm_wakeup_event(&ts->client->dev,1000);
+        pm_wakeup_event(&ts->client->dev,5000);
 	} else {
         pm_wakeup_event(&ts->client->dev,100);
 	}
