@@ -1086,7 +1086,8 @@ static void nvt_ts_work_func(void)
 
 	dev_dbg(&ts->client->dev, "%s enter\n", __func__);
 
-	pm_qos_update_request(&ts->pm_qos_req, 100);
+	pm_qos_update_request(&ts->pm_touch_req, 100);
+	pm_qos_update_request(&ts->pm_spi_req, 100);
 
 	if (unlikely(ts->dev_pm_suspend)) {
 		ret = wait_for_completion_timeout(&ts->dev_pm_suspend_completion, msecs_to_jiffies(500));
@@ -1114,7 +1115,8 @@ static void nvt_ts_work_func(void)
 	if (likely(bTouchIsAwake == 0)) {
 		input_id = (uint8_t)(point_data[1] >> 3);
 		nvt_ts_wakeup_gesture_report(input_id, point_data);
-		pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
+		pm_qos_update_request(&ts->pm_spi_req, PM_QOS_DEFAULT_VALUE);
+		pm_qos_update_request(&ts->pm_touch_req, PM_QOS_DEFAULT_VALUE);
 		goto out;
 	}
 #endif
@@ -1175,7 +1177,8 @@ static void nvt_ts_work_func(void)
 
 out:
 
-	pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
+	pm_qos_update_request(&ts->pm_spi_req, PM_QOS_DEFAULT_VALUE);
+	pm_qos_update_request(&ts->pm_touch_req, PM_QOS_DEFAULT_VALUE);
 
 	input_sync(ts->input_dev);
 
@@ -1202,7 +1205,8 @@ static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 	}
 
 	nvt_ts_work_func();
-	pm_qos_update_request(&ts->pm_qos_req, PM_QOS_DEFAULT_VALUE);
+	pm_qos_update_request(&ts->pm_spi_req, PM_QOS_DEFAULT_VALUE);
+	pm_qos_update_request(&ts->pm_touch_req, PM_QOS_DEFAULT_VALUE);
 	input_sync(ts->input_dev);
 
 	return IRQ_HANDLED;
@@ -1732,9 +1736,14 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	/* we should enable the reg for lpwg mode */
 	nvt_enable_reg(ts, true);
 
-		ts->pm_qos_req.type = PM_QOS_REQ_AFFINE_IRQ;
-		ts->pm_qos_req.irq = ts->client->irq;
-	pm_qos_add_request(&ts->pm_qos_req, PM_QOS_CPU_DMA_LATENCY,
+		ts->pm_spi_req.type = PM_QOS_REQ_AFFINE_IRQ;
+		ts->pm_spi_req.irq = ts->client->irq;
+		pm_qos_add_request(&ts->pm_spi_req, PM_QOS_CPU_DMA_LATENCY,
+			PM_QOS_DEFAULT_VALUE);
+
+		ts->pm_touch_req.type = PM_QOS_REQ_AFFINE_IRQ;
+		ts->pm_touch_req.irq = client->irq;
+		pm_qos_add_request(&ts->pm_touch_req, PM_QOS_CPU_DMA_LATENCY,
 			PM_QOS_DEFAULT_VALUE);
 
 	/*---set int-pin & request irq---*/
@@ -1866,7 +1875,8 @@ err_register_drm_notif_failed:
 #if (NVT_TOUCH_PROC || NVT_TOUCH_EXT_PROC || NVT_TOUCH_MP)
 err_init_NVT_ts:
 #endif
-	pm_qos_remove_request(&ts->pm_qos_req);
+	pm_qos_remove_request(&ts->pm_touch_req);
+	pm_qos_remove_request(&ts->pm_spi_req);
 	free_irq(client->irq, ts);
 
 	if (gpio_is_valid(ts->irq_gpio)) {
@@ -1918,7 +1928,8 @@ static int32_t nvt_ts_remove(struct i2c_client *client)
 	if (drm_unregister_client(&ts->notifier))
 		NVT_ERR("Error occurred while unregistering drm_notifier.\n");
 #endif
-	pm_qos_remove_request(&ts->pm_qos_req);
+	pm_qos_remove_request(&ts->pm_touch_req);
+	pm_qos_remove_request(&ts->pm_spi_req);
 	destroy_workqueue(ts->event_wq);
 
 	nvt_get_reg(ts, false);
@@ -1929,7 +1940,8 @@ static int32_t nvt_ts_remove(struct i2c_client *client)
 
 	NVT_LOG("Removing driver...\n");
 
-	pm_qos_remove_request(&ts->pm_qos_req);
+	pm_qos_remove_request(&ts->pm_touch_req);
+	pm_qos_remove_request(&ts->pm_spi_req);
 
 	free_irq(client->irq, ts);
 	input_unregister_device(ts->input_dev);
