@@ -55,7 +55,6 @@ extern void nvt_mp_proc_remove(void);
 struct nvt_ts_data *ts;
 struct kmem_cache *kmem_ts_data_pool;
 
-static struct workqueue_struct *nvt_wq;
 static bool screen_on = 0;
 
 #if BOOT_UPDATE_FIRMWARE
@@ -1070,7 +1069,7 @@ Description:
 return:
 	n.a.
 *******************************************************/
-static void nvt_ts_work_func(void)
+static __always_inline void nvt_ts_work_func(void)
 {
 	int32_t ret = -1;
 	uint8_t point_data[POINT_DATA_LEN + 1] = {0};
@@ -1197,12 +1196,7 @@ return:
 static irqreturn_t nvt_ts_irq_handler(int32_t irq, void *dev_id)
 {
 	disable_irq_nosync(ts->client->irq);
-	if (likely(bTouchIsAwake == 0)) {
-		dev_dbg(&ts->client->dev, "%s gesture wakeup\n", __func__);
         pm_wakeup_event(&ts->client->dev,5000);
-	} else {
-        pm_wakeup_event(&ts->client->dev,100);
-	}
 
 	nvt_ts_work_func();
 	pm_qos_update_request(&ts->pm_spi_req, PM_QOS_DEFAULT_VALUE);
@@ -1655,16 +1649,6 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	nvt_get_fw_info();
 	mutex_unlock(&ts->lock);
 
-	/*---create workqueue---*/
-	nvt_wq = alloc_workqueue("nvt_wq",
-						WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
-						WQ_MEM_RECLAIM, 0);
-	if (!nvt_wq) {
-		NVT_ERR("nvt_wq create workqueue failed\n");
-		ret = -ENOMEM;
-		goto err_create_nvt_wq_failed;
-	}
-
 	/*---allocate input device---*/
 	ts->input_dev = input_allocate_device();
 	if (ts->input_dev == NULL) {
@@ -1900,7 +1884,6 @@ err_int_request_failed:
 err_input_register_device_failed:
 	input_free_device(ts->input_dev);
 err_input_dev_alloc_failed:
-err_create_nvt_wq_failed:
 	mutex_destroy(&ts->lock);
 err_chipvertrim_failed:
 err_check_functionality_failed:
@@ -2242,9 +2225,6 @@ static void __exit nvt_driver_exit(void)
 {
 	i2c_del_driver(&nvt_i2c_driver);
 	kmem_cache_destroy(kmem_ts_data_pool);
-
-	if (nvt_wq)
-		destroy_workqueue(nvt_wq);
 
 #if BOOT_UPDATE_FIRMWARE
 	if (nvt_fwu_wq)
