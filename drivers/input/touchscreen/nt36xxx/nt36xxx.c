@@ -1597,6 +1597,7 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 
 	ts->client = client;
 	ts->input_proc = NULL;
+	ts->dev = &client->dev;
 	i2c_set_clientdata(client, ts);
 
 	/*---parse dts---*/
@@ -1706,6 +1707,7 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
 	ts->input_dev->id.bustype = BUS_I2C;
 	ts->input_dev->event = nvt_input_event;
 	input_set_drvdata(ts->input_dev, ts);
+	ts->input_dev->dev.parent = ts->dev;
 
 	/*---register input device---*/
 	ret = input_register_device(ts->input_dev);
