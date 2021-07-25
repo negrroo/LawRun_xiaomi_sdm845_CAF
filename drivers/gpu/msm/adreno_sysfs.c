@@ -285,7 +285,7 @@ static unsigned int _hwcg_show(struct adreno_device *adreno_dev)
 static int _throttling_store(struct adreno_device *adreno_dev,
 	unsigned int val)
 {
-	return _pwrctrl_store(adreno_dev, val, ADRENO_THROTTLING_CTRL);
+	return 0;
 }
 
 static unsigned int _throttling_show(struct adreno_device *adreno_dev)
@@ -464,7 +464,7 @@ static ADRENO_SYSFS_BOOL(sptp_pc);
 static ADRENO_SYSFS_BOOL(lm);
 static ADRENO_SYSFS_BOOL(preemption);
 static ADRENO_SYSFS_BOOL(hwcg);
-static ADRENO_SYSFS_BOOL(throttling);
+static ADRENO_SYSFS_RO_BOOL(throttling);
 static ADRENO_SYSFS_BOOL(ifpc);
 static ADRENO_SYSFS_RO_U32(ifpc_count);
 
