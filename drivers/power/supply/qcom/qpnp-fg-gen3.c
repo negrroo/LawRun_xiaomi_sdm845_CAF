@@ -4005,6 +4005,47 @@ out:
 	return rc;
 }
 
+static void fg_get_online_status(struct fg_chip *chip)
+{
+	int rc;
+	union power_supply_propval prop = {0, };
+	int online = 0;
+
+	if (usb_psy_initialized(chip)) {
+		rc = power_supply_get_property(chip->usb_psy,
+			POWER_SUPPLY_PROP_ONLINE, &prop);
+		if (rc < 0) {
+			pr_err("Couldn't read usb ONLINE prop rc=%d\n", rc);
+			return;
+		}
+
+		online = online || prop.intval;
+	}
+
+	if (pc_port_psy_initialized(chip)) {
+		rc = power_supply_get_property(chip->pc_port_psy,
+			POWER_SUPPLY_PROP_ONLINE, &prop);
+		if (rc < 0) {
+			pr_err("Couldn't read pc_port ONLINE prop rc=%d\n", rc);
+			return;
+		}
+
+		online = online || prop.intval;
+	}
+
+	if (dc_psy_initialized(chip)) {
+		rc = power_supply_get_property(chip->dc_psy,
+			POWER_SUPPLY_PROP_ONLINE, &prop);
+		if (rc < 0) {
+			pr_err("Couldn't read dc ONLINE prop rc=%d\n", rc);
+			return;
+		}
+
+		online = online || prop.intval;
+	}
+	chip->online_status = online;
+}
+
 static void ttf_work(struct work_struct *work)
 {
 	struct fg_chip *chip = container_of(work, struct fg_chip,
