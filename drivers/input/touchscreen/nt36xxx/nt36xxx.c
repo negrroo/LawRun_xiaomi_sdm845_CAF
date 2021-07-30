@@ -197,6 +197,23 @@ int32_t CTP_I2C_WRITE(struct i2c_client *client, uint16_t address, uint8_t *buf,
 	return ret;
 }
 
+/*******************************************************
+ * Description:
+ *     Novatek touchscreen set index/page/addr address.
+ *
+ * return:
+ *     Executive outcomes. 0---succeed. -5---access fail.
+ ********************************************************/
+int32_t nvt_set_page(uint16_t i2c_addr, uint32_t addr)
+{
+	uint8_t buf[4] = {0};
+
+	buf[0] = 0xFF;	//set index/page/addr command
+	buf[1] = (addr >> 16) & 0xFF;
+	buf[2] = (addr >> 8) & 0xFF;
+
+	return CTP_I2C_WRITE(ts->client, i2c_addr, buf, 3);
+}
 
 /*******************************************************
 Description:
@@ -1972,6 +1989,12 @@ static int32_t nvt_ts_suspend(struct device *dev)
 		disable_irq_nosync(ts->client->irq);
 		/*---write i2c command to enter "deep sleep mode"---*/
 		buf[0] = EVENT_MAP_HOST_CMD;
+		buf[1] = 0x11;
+		CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 2);
+
+		// Force deep sleep mode
+		nvt_set_page(I2C_FW_Address, 0x11a50);
+		buf[0] = 0x11a50 & 0xff;
 		buf[1] = 0x11;
 		CTP_I2C_WRITE(ts->client, I2C_FW_Address, buf, 2);
 
