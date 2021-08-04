@@ -671,6 +671,9 @@ static int smb2_usb_get_prop(struct power_supply *psy,
 		val->intval = get_client_vote(chg->usb_icl_votable,
 					      USB_PSY_VOTER);
 		break;
+	case POWER_SUPPLY_PROP_RERUN_APSD:
+		val->intval = chg->float_rerun_apsd;
+		break;
 	case POWER_SUPPLY_PROP_CONNECTOR_TYPE:
 		val->intval = chg->connector_type;
 		break;
