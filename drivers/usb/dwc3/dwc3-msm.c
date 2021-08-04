@@ -2932,6 +2932,8 @@ static void dwc3_resume_work(struct work_struct *w)
 
 	/* Check speed and Type-C polarity values in order to configure PHY */
 	if (edev && extcon_get_state(edev, extcon_id)) {
+		dwc->maximum_speed = dwc->max_hw_supp_speed;
+
 		ret = extcon_get_property(edev, extcon_id,
 					EXTCON_PROP_USB_SS, &val);
 
@@ -2943,12 +2945,12 @@ static void dwc3_resume_work(struct work_struct *w)
 		if (dwc->maximum_speed > dwc->max_hw_supp_speed)
 			dwc->maximum_speed = dwc->max_hw_supp_speed;
 
-		if (mdwc->override_usb_speed) {
+		if (mdwc->override_usb_speed &&
+				mdwc->override_usb_speed < dwc->maximum_speed) {
 			dwc->maximum_speed = mdwc->override_usb_speed;
 			dwc->gadget.max_speed = dwc->maximum_speed;
 			dbg_event(0xFF, "override_speed",
 					mdwc->override_usb_speed);
-			mdwc->override_usb_speed = 0;
 		}
 
 		dbg_event(0xFF, "speed", dwc->maximum_speed);
@@ -3563,6 +3565,8 @@ static ssize_t speed_store(struct device *dev, struct device_attribute *attr,
 			req_speed <= dwc->max_hw_supp_speed) {
 		mdwc->override_usb_speed = req_speed;
 		schedule_work(&mdwc->restart_usb_work);
+	} else if (req_speed >= dwc->max_hw_supp_speed) {
+		mdwc->override_usb_speed = 0;
 	}
 
 	return count;
