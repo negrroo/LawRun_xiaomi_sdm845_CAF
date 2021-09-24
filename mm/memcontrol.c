@@ -3292,8 +3292,10 @@ static int mem_cgroup_swappiness_write(struct cgroup_subsys_state *css,
 {
 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
 
+#if 0
 	if (val > 100)
 		return -EINVAL;
+#endif
 
 	if (css->parent)
 		memcg->swappiness = val;
