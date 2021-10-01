@@ -677,7 +677,7 @@ static int fg_get_battery_temp(struct fg_chip *chip, int *val)
 	temp = ((buf[1] & BATT_TEMP_MSB_MASK) << 8) |
 		(buf[0] & BATT_TEMP_LSB_MASK);
 	/* Value is in 0.25Kelvin; Convert it to deciDegC */
-	*val = DIV_ROUND_CLOSEST((temp - 273*4) * 10, 4);
+	*val = DIV_ROUND_CLOSEST((temp - 278*4) * 10, 4);
 	return 0;
 }
 
