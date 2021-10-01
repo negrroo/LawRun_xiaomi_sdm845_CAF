@@ -6172,7 +6172,7 @@ static int __init pcie_init(void)
 	int ret = 0, i;
 	char rc_name[MAX_RC_NAME_LEN];
 #else
-	int ret = 0;
+	int ret = 0, i;
 #endif
 	pr_alert("pcie:%s.\n", __func__);
 
