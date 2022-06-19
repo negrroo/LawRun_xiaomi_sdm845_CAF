@@ -2,7 +2,7 @@
 
 
 <h1 align="center">Hi 👋, I'm Mohammed Elnaggar</h1>
-<h3 align="center">I'm Mohammed From Egypt, I'm a Communication Engineer act as a software developer with problem-solving skills in creating and optimizing your device kernel also I'm an autodidact person always intend to learn.</h3>
+<h3 align="center">From Egypt, I'm a Communication Engineer act as a software developer with problem-solving skills in creating and optimizing your device kernel also I'm an autodidact person always intend to learn.</h3>
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=negrroo&label=Profile%20views&color=0e75b6&style=flat" alt="negrroo" /> </p>
 
