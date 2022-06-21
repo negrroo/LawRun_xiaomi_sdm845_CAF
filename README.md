@@ -40,7 +40,6 @@
 " target="_blank"><img alt="IMAGE ALT TEXT HERE" border="10" height="180" src="http://img.youtube.com/vi/OZIMFoNV2cc/0.jpg" width="340" /></a>
 <a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=4QbTvBQB2QU
 " target="_blank"><img alt="IMAGE ALT TEXT HERE" border="10" height="180" src="http://img.youtube.com/vi/4QbTvBQB2QU/0.jpg" width="340" /></a><br />
-<script src="https://apis.google.com/js/platform.js"></script><div class="g-ytsubscribe" data-channelid="UC85TiY17IhbOXDjbn1dmYMw" data-count="default" data-layout="default"></div><br />
 <div style="text-align: center;">Always Be Ready To Run!</div></center>
 
 <p><img align="center" alt="negrroo" src="https://github-readme-stats.vercel.app/api?username=negrroo&amp;show_icons=true&amp;locale=en" /></p>
