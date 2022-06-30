@@ -16,7 +16,7 @@
 
 - 👨‍💻 All of my projects are available at [https://www.behance.net/negrroo](https://www.behance.net/negrroo)
 
-- 📝 I regularly write articles on [https://lawrun-kernel.blogspot.com/p/about-us.html](https://lawrun-kernel.blogspot.com/p/about-us.html)
+- 📝 I regularly write articles on [https://mohammedaelnaggar.ml](https://mohammedaelnaggar.ml)
 
 - 📫 How to reach me **mohammedaelnaggar1@gmail.com**
 
