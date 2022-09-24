@@ -1064,6 +1064,7 @@ __ni_sys_trace:
 #else
 	ldr	x30, =vectors
 #endif
+	isb
 	tramp_data_read_var	x30, vectors
 	prfm	plil1strm, [x30, #(1b - \vector_start)]
 	msr	vbar_el1, x30
