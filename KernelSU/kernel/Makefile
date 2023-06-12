@@ -13,7 +13,6 @@ obj-y += kernel_compat.o
 
 obj-y += selinux/
 ccflags-y += -DKSU_GIT_VERSION=614
-endif
 
 ifndef EXPECTED_SIZE
 EXPECTED_SIZE := 0x033b
