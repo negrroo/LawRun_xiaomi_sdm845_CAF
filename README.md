@@ -45,9 +45,7 @@
 <p><img align="center" alt="negrroo" src="https://github-readme-stats.vercel.app/api?username=negrroo&amp;show_icons=true&amp;locale=en" /></p>
 <p><img align="center" alt="negrroo" src="https://github-readme-streak-stats.herokuapp.com/?user=negrroo&amp;" /></p>
 <p><img align="left" alt="negrroo" src="https://github-readme-stats.vercel.app/api/top-langs?username=negrroo&amp;show_icons=true&amp;locale=en&amp;layout=compact" /></p><br /><br /><br /><br /><br /><br />
-
+<center>
 <br /><h3 align="left">Support:</h3>
 <!--PayPal Logo--><a href="https://lawrun-kernel.blogspot.com/2020/08/donation-link.html" title="Support LawRun"><img alt="Donation Link" border="0"  height="50" src="https://github.com/negrroo/LawRun-Stuff/releases/download/8/Donate.png" width="210" /></a><!--PayPal Logo-->
-<!--PayPal Logo--><a href="https://www.paypal.me/MohammedAElnaggar1" title="Support LawRun"><img alt="PayPal Logo" border="0" height="50" src="https://github.com/negrroo/LawRun-Stuff/releases/download/8/Paypal01.png" width="210"/></a><!--PayPal Logo-->
-<!--PayPal Logo--><a href="https://www.buymeacoffee.com/negrroo" title="Support LawRun"><img alt="PayPal Logo" border="0" height="50" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" width="210" /></a><!--PayPal Logo-->
-<!--PayPal Logo--><a href="https://ko-fi.com/negrroo" title="Support LawRun"><img alt="PayPal Logo" border="0" height="50" src="https://cdn.ko-fi.com/cdn/kofi3.png?v=3"  width="210"/></a><!--PayPal Logo-->
+</center>
