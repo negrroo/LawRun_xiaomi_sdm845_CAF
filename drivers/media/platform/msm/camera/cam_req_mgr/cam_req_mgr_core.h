@@ -339,7 +339,6 @@ struct cam_req_mgr_core_link {
 	bool                                 frame_skip_flag;
 	bool                                 sync_link_sof_skip;
 	int64_t                              sync_trigger_frame_id;
-        uint32_t                             last_flush_id;
 	int32_t                              open_req_cnt;
 	uint32_t                             last_flush_id;
 	atomic_t                             is_used;
