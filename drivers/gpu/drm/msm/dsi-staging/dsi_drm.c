@@ -76,6 +76,12 @@ int drm_notifier_call_chain(unsigned long val, void *v)
 }
 EXPORT_SYMBOL_GPL(drm_notifier_call_chain);
 
+static unsigned int dsi_debug=0;
+module_param(dsi_debug, uint, 0644);
+
+static unsigned int refresh_rate=60;
+module_param(refresh_rate, uint, 0644);
+
 static void convert_to_dsi_mode(const struct drm_display_mode *drm_mode,
 				struct dsi_display_mode *dsi_mode)
 {
@@ -193,6 +199,30 @@ static void dsi_bridge_pre_enable(struct drm_bridge *bridge)
 	struct dsi_bridge *c_bridge = to_dsi_bridge(bridge);
 	struct drm_device *dev = bridge->dev;
 	int event = 0;
+        struct dsi_display *display;
+        struct dsi_display_ctrl *m_ctrl;
+        display = c_bridge->display;
+        m_ctrl = &display->ctrl[display->clk_master_idx];
+
+        // set your new refresh rate
+        if(refresh_rate <= display->modes[0].default_max_refresh_rate){
+        display->modes[0].timing.refresh_rate = refresh_rate;
+        display->modes[0].pixel_clk_khz = (display->modes[0].timing.h_active *
+                        DSI_V_TOTAL(&display->modes[0].timing) *
+                        refresh_rate) / 1000;
+        }else{pr_info("invalid mode %d maximum allowed %d",refresh_rate,display->modes[0].default_max_refresh_rate);}
+
+        pr_info("DRM info default_mode %d\n",display->modes[0].default_max_refresh_rate);
+
+        if(dsi_debug){// only for debugging purpose
+        pr_info("DRM info master_idx %d\n",display->clk_master_idx);
+        pr_info("DRM info pix_clk %d\n",(int) m_ctrl->ctrl->clk_freq.pix_clk_rate);
+        pr_info("DRM info byte_clk %d\n",(int) m_ctrl->ctrl->clk_freq.byte_clk_rate);
+        pr_info("DRM info esc_clk %d\n",(int) m_ctrl->ctrl->clk_freq.esc_clk_rate);
+        pr_info("DRM info h_act %d h_bpoch %d h_fpoch %d h_sycwith %d h_skw %d\n",c_bridge->display->panel->cur_mode->timing.h_active,c_bridge->display->panel->cur_mode->timing.h_back_porch,c_bridge->display->panel->cur_mode->timing.h_sync_width,c_bridge->display->panel->cur_mode->timing.h_front_porch,c_bridge->display->panel->cur_mode->timing.h_skew);
+        pr_info("DRM info v_act %d v_bpoch %d v_fpoch %d v_sycwith %d\n",c_bridge->display->panel->cur_mode->timing.v_active,c_bridge->display->panel->cur_mode->timing.v_back_porch,c_bridge->display->panel->cur_mode->timing.v_sync_width,c_bridge->display->panel->cur_mode->timing.v_front_porch);
+        pr_info("DRM info ref_rate %d px_khz %d cl_hz %d\n",c_bridge->display->panel->cur_mode->timing.refresh_rate,c_bridge->display->panel->cur_mode->pixel_clk_khz,(int) c_bridge->display->panel->cur_mode->timing.clk_rate_hz);
+        }
 
 	if (dev->doze_state == DRM_BLANK_POWERDOWN) {
 		dev->doze_state = DRM_BLANK_UNBLANK;
@@ -225,14 +255,16 @@ static void dsi_bridge_pre_enable(struct drm_bridge *bridge)
 			drm_notifier_call_chain(DRM_EVENT_BLANK, &g_notify_data);
 			dev->fp_quickon = false;
 		}
+                pr_info("%d curr rate\n", c_bridge->display->panel->cur_mode->timing.refresh_rate);
 		pr_info("%s panel already on\n", __func__);
 		return;
 	}
 
 	drm_notifier_call_chain(DRM_EARLY_EVENT_BLANK, &g_notify_data);
+        pr_info("DRM info fps %d",c_bridge->dsi_mode.timing.refresh_rate);
 	/* By this point mode should have been validated through mode_fixup */
 	rc = dsi_display_set_mode(c_bridge->display,
-			&(c_bridge->dsi_mode), 0x0);
+			&display->modes[0], 0x0);
 	if (rc) {
 		pr_err("[%d] failed to perform a mode set, rc=%d\n",
 		       c_bridge->id, rc);
@@ -441,6 +473,15 @@ static void dsi_bridge_disable(struct drm_bridge *bridge)
 	struct dsi_display *display;
 	struct dsi_bridge *c_bridge = to_dsi_bridge(bridge);
 
+        //ensure to set default mode when disabling panel
+        c_bridge->display->modes[0].timing.refresh_rate = c_bridge->display->modes[0].default_max_refresh_rate;
+        c_bridge->display->modes[0].pixel_clk_khz = c_bridge->display->modes[0].default_max_pixel_clk_khz;
+
+        pr_info("DRM info default_pixclk %d\n",c_bridge->display->modes[0].default_max_pixel_clk_khz);
+
+        dsi_display_set_mode(c_bridge->display,
+                        &c_bridge->display->modes[0], 0x0);
+
 	if (!bridge) {
 		pr_err("Invalid params\n");
 		return;
@@ -591,7 +632,6 @@ static bool dsi_bridge_mode_fixup(struct drm_bridge *bridge,
 	}
 
 	convert_to_dsi_mode(mode, &dsi_mode);
-
 	/* external bridge doesn't use priv_info and dsi_mode_flags */
 	if (!dsi_display_has_ext_bridge(display)) {
 		/*
