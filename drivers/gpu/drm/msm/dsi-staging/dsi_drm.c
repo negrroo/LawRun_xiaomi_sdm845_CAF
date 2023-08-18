@@ -76,6 +76,9 @@ int drm_notifier_call_chain(unsigned long val, void *v)
 }
 EXPORT_SYMBOL_GPL(drm_notifier_call_chain);
 
+static unsigned int refresh_rate=60;
+module_param(refresh_rate, uint, 0644);
+
 static void convert_to_dsi_mode(const struct drm_display_mode *drm_mode,
 				struct dsi_display_mode *dsi_mode)
 {
@@ -555,6 +558,17 @@ static void dsi_bridge_mode_set(struct drm_bridge *bridge,
 		pr_err("Invalid params\n");
 		return;
 	}
+
+        if(refresh_rate <= c_bridge->display->modes[0].default_max_refresh_rate){
+                c_bridge->display->modes[0].old_refresh_rate = refresh_rate; //backup old refresh rate in case of failure
+        }else{
+                pr_info("Invalid mode %d maximum allowed %d",refresh_rate,c_bridge->display->modes[0].default_max_refresh_rate);
+                refresh_rate = c_bridge->display->modes[0].old_refresh_rate; //restore old refresh rate
+        }
+
+        //set new adjusted mode
+        adjusted_mode->vrefresh = refresh_rate;
+        adjusted_mode->clock = (1080 + 28 + 4 + 16) * (2246 + 120 + 4 + 12) * refresh_rate / 1000;
 
 	memset(&(c_bridge->dsi_mode), 0x0, sizeof(struct dsi_display_mode));
 	convert_to_dsi_mode(adjusted_mode, &(c_bridge->dsi_mode));
