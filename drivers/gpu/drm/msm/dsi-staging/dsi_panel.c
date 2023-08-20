@@ -917,12 +917,14 @@ static int dsi_panel_parse_timing(struct device *parent,
 
 	mode->clk_rate_hz = !rc ? tmp64 : 0;
 	if (tmp64 == 1100000000 || tmp64 == 1103000000) {
-		if (framerate_override == 7)
-			mode->clk_rate_hz = 1265000000;
-		else if (framerate_override == 4)
-			mode->clk_rate_hz = 1210000000;
+		if (framerate_override == 4)
+			mode->clk_rate_hz = 1375000000;
+		else if (framerate_override == 3)
+			mode->clk_rate_hz = 1320000000;
 		else if (framerate_override == 2)
-			mode->clk_rate_hz = 1155000000;
+			mode->clk_rate_hz = 1265000000;
+		else if (framerate_override == 1)
+			mode->clk_rate_hz = 1210000000;
 	}
 	display_mode->priv_info->clk_rate_hz = mode->clk_rate_hz;
 
@@ -950,22 +952,18 @@ static int dsi_panel_parse_timing(struct device *parent,
 	}
 
 	if (mode->refresh_rate == 60) {
-		if (framerate_override == 9)
+		if (framerate_override == 7)
 			mode->refresh_rate = 71;
-		else if (framerate_override == 8)
-			mode->refresh_rate = 70;
-		else if (framerate_override == 7)
-			mode->refresh_rate = 69;
 		else if (framerate_override == 6)
-			mode->refresh_rate = 68;
+			mode->refresh_rate = 69;
 		else if (framerate_override == 5)
-			mode->refresh_rate = 67;
+			mode->refresh_rate = 68;
 		else if (framerate_override == 4)
-			mode->refresh_rate = 66;
+			mode->refresh_rate = 67;
 		else if (framerate_override == 3)
-			mode->refresh_rate = 65;
+			mode->refresh_rate = 66;
 		else if (framerate_override == 2)
-			mode->refresh_rate = 63;
+			mode->refresh_rate = 65;
 		else if (framerate_override == 1)
 			mode->refresh_rate = 62;
 	}
