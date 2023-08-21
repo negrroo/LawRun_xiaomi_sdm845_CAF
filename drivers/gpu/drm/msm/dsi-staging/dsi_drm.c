@@ -553,22 +553,28 @@ static void dsi_bridge_mode_set(struct drm_bridge *bridge,
 				struct drm_display_mode *adjusted_mode)
 {
 	struct dsi_bridge *c_bridge = to_dsi_bridge(bridge);
+        struct dsi_display_mode *adj_mode = &c_bridge->display->modes[0];
+        int adj_refresh_rate = 60;
 
 	if (!bridge || !mode || !adjusted_mode) {
 		pr_err("Invalid params\n");
 		return;
 	}
 
-        if(refresh_rate <= c_bridge->display->modes[0].default_max_refresh_rate){
-                c_bridge->display->modes[0].old_refresh_rate = refresh_rate; //backup old refresh rate in case of failure
+        if(!adj_mode->booted){
+                adj_refresh_rate = 60;
+                adj_mode->booted = true; //ensure that u boot at default refresh rate initially!
+        }else if(adj_mode->booted && refresh_rate <= adj_mode->default_max_refresh_rate){
+                adj_mode->old_refresh_rate = refresh_rate; //backup old refresh rate in case of failure
+                adj_refresh_rate = refresh_rate;
         }else{
                 pr_info("Invalid mode %d maximum allowed %d",refresh_rate,c_bridge->display->modes[0].default_max_refresh_rate);
-                refresh_rate = c_bridge->display->modes[0].old_refresh_rate; //restore old refresh rate
+                adj_refresh_rate = adj_mode->old_refresh_rate; //restore old refresh rate
         }
 
         //set new adjusted mode
-        adjusted_mode->vrefresh = refresh_rate;
-        adjusted_mode->clock = (1080 + 28 + 4 + 16) * (2246 + 120 + 4 + 12) * refresh_rate / 1000;
+        adjusted_mode->vrefresh = adj_refresh_rate;
+        adjusted_mode->clock = (1080 + 28 + 4 + 16) * (2246 + 120 + 4 + 12) * adj_refresh_rate / 1000;
 
 	memset(&(c_bridge->dsi_mode), 0x0, sizeof(struct dsi_display_mode));
 	convert_to_dsi_mode(adjusted_mode, &(c_bridge->dsi_mode));

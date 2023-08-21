@@ -595,6 +595,7 @@ struct dsi_display_mode {
 	u32 pixel_clk_khz;
         u32 default_max_refresh_rate;
         u32 old_refresh_rate;
+        bool booted;
 	u32 dsi_mode_flags;
 	struct dsi_display_mode_priv_info *priv_info;
 };
