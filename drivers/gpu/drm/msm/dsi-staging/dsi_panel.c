@@ -884,10 +884,8 @@ static int dsi_panel_parse(struct device_node *of_node,
 	return 0;
 }
 
-static unsigned int framerate_override;
+static unsigned int framerate_override=60; //maximum refresh rate value on boot
 module_param(framerate_override, uint, 0444);
-
-static unsigned int cur_refresh_rate = 60;
 
 static int dsi_panel_parse_timing(struct device *parent,
 	struct dsi_mode_info *mode, const char *name,
@@ -916,14 +914,6 @@ static int dsi_panel_parse_timing(struct device *parent,
 	}
 
 	mode->clk_rate_hz = !rc ? tmp64 : 0;
-	if (tmp64 == 1100000000 || tmp64 == 1103000000) {
-		if (framerate_override == 7)
-			mode->clk_rate_hz = 1265000000;
-		else if (framerate_override == 4)
-			mode->clk_rate_hz = 1210000000;
-		else if (framerate_override == 2)
-			mode->clk_rate_hz = 1155000000;
-	}
 	display_mode->priv_info->clk_rate_hz = mode->clk_rate_hz;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
@@ -933,6 +923,8 @@ static int dsi_panel_parse_timing(struct device *parent,
 		       rc);
 		goto error;
 	}
+
+        mode->refresh_rate = framerate_override;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-panel-width", &mode->h_active);
@@ -949,32 +941,6 @@ static int dsi_panel_parse_timing(struct device *parent,
 		goto error;
 	}
 
-	if (mode->refresh_rate == 60) {
-		if (framerate_override == 9)
-			mode->refresh_rate = 71;
-		else if (framerate_override == 8)
-			mode->refresh_rate = 70;
-		else if (framerate_override == 7)
-			mode->refresh_rate = 69;
-		else if (framerate_override == 6)
-			mode->refresh_rate = 68;
-		else if (framerate_override == 5)
-			mode->refresh_rate = 67;
-		else if (framerate_override == 4)
-			mode->refresh_rate = 66;
-		else if (framerate_override == 3)
-			mode->refresh_rate = 65;
-		else if (framerate_override == 2)
-			mode->refresh_rate = 63;
-		else if (framerate_override == 1)
-			mode->refresh_rate = 62;
-	}
-
-cur_refresh_rate = mode->refresh_rate;
-
-	if (framerate_override)
-		mode->h_front_porch = 32;
-
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-h-back-porch", &mode->h_back_porch);
 	if (rc) {
@@ -982,8 +948,6 @@ cur_refresh_rate = mode->refresh_rate;
 		       rc);
 		goto error;
 	}
-	if (framerate_override)
-		mode->h_back_porch = 16;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-h-pulse-width", &mode->h_sync_width);
@@ -992,8 +956,6 @@ cur_refresh_rate = mode->refresh_rate;
 		       rc);
 		goto error;
 	}
-	if (framerate_override)
-		mode->h_sync_width = 16;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-h-sync-skew", &mode->h_skew);
@@ -1019,8 +981,6 @@ cur_refresh_rate = mode->refresh_rate;
 		       rc);
 		goto error;
 	}
-	if (framerate_override)
-		mode->h_sync_width = 16;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-v-front-porch", &mode->v_front_porch);
@@ -1029,8 +989,6 @@ cur_refresh_rate = mode->refresh_rate;
 		       rc);
 		goto error;
 	}
-	if (framerate_override)
-		mode->h_sync_width = 8;
 
 	rc = dsi_panel_parse(of_node, fw_entry,
 		"qcom,mdss-dsi-v-pulse-width", &mode->v_sync_width);
@@ -1039,19 +997,12 @@ cur_refresh_rate = mode->refresh_rate;
 		       rc);
 		goto error;
 	}
-	if (framerate_override)
-		mode->h_sync_width = 8;
 	pr_debug("panel vert active:%d front_portch:%d back_porch:%d pulse_width:%d\n",
 		mode->v_active, mode->v_front_porch, mode->v_back_porch,
 		mode->v_sync_width);
 
 error:
 	return rc;
-}
-
-unsigned int dsi_panel_get_refresh_rate(void)
-{
-	return cur_refresh_rate;
 }
 
 static int dsi_panel_parse_pixel_format(struct dsi_host_common_cfg *host,
@@ -3771,6 +3722,8 @@ int dsi_panel_get_mode(struct dsi_panel *panel,
 			pr_err("failed to parse panel timing, rc=%d\n", rc);
 			goto parse_fail;
 		}
+
+                mode->default_max_refresh_rate = mode->timing.refresh_rate; //max refresh supported
 
 		rc = dsi_panel_parse_dsc_params(mode, child_np);
 		if (rc) {
