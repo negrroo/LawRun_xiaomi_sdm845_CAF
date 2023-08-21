@@ -887,8 +887,6 @@ static int dsi_panel_parse(struct device_node *of_node,
 static unsigned int framerate_override;
 module_param(framerate_override, uint, 0444);
 
-static unsigned int cur_refresh_rate = 60;
-
 static int dsi_panel_parse_timing(struct device *parent,
 	struct dsi_mode_info *mode, const char *name,
 	struct device_node *of_node)
@@ -968,8 +966,6 @@ static int dsi_panel_parse_timing(struct device *parent,
 			mode->refresh_rate = 62;
 	}
 
-cur_refresh_rate = mode->refresh_rate;
-
 	if (framerate_override)
 		mode->h_front_porch = 32;
 
@@ -1045,11 +1041,6 @@ cur_refresh_rate = mode->refresh_rate;
 
 error:
 	return rc;
-}
-
-unsigned int dsi_panel_get_refresh_rate(void)
-{
-	return cur_refresh_rate;
 }
 
 static int dsi_panel_parse_pixel_format(struct dsi_host_common_cfg *host,
