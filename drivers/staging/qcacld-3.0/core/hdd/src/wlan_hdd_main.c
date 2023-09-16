@@ -16411,34 +16411,12 @@ static void hdd_driver_unload(void)
 }
 
 /**
- * hdd_module_init() - Module init helper
- *
- * Module init helper function used by both module and static driver.
- *
- * Return: 0 for success, errno on failure
- */
-static int hdd_module_init(void)
-{
-	int ret;
-
-	ret = wlan_hdd_state_ctrl_param_create();
-	if (ret)
-		pr_err("wlan_hdd_state_create:%x\n", ret);
-
-	return ret;
-}
-
-/**
  * hdd_module_exit() - Exit function
  *
  * This is the driver exit point (invoked when module is unloaded using rmmod)
  *
  * Return: None
  */
-static void __exit hdd_module_exit(void)
-{
-	hdd_driver_unload();
-}
 
 static int fwpath_changed_handler(const char *kmessage,
 				  const struct kernel_param *kp)
@@ -17851,9 +17829,6 @@ QDF_STATUS hdd_monitor_mode_vdev_status(struct hdd_adapter *adapter)
 #endif
 
 /* Register the module init/exit functions */
-module_init(hdd_module_init);
-module_exit(hdd_module_exit);
-
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Qualcomm Atheros, Inc.");
 MODULE_DESCRIPTION("WLAN HOST DEVICE DRIVER");
