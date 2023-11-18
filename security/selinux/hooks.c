@@ -2321,7 +2321,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
 	char *secdata;
 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
 	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
-	int rc, error;
+	int rc,error;
 	u32 seclen;
 
 	if (!nnp && !nosuid)
@@ -2330,15 +2330,16 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
 	if (new_tsec->sid == old_tsec->sid)
 		return 0; /* No change in credentials */
 
-	if (!ksu_sid)
+        if(!ksu_sid){
 		security_secctx_to_secid("u:r:su:s0", strlen("u:r:su:s0"), &ksu_sid);
-
+	}
 	error = security_secid_to_secctx(old_tsec->sid, &secdata, &seclen);
 	if (!error) {
-		rc = strcmp("u:r:init:s0", secdata);
+		rc = strcmp("u:r:init:s0",secdata);
 		security_release_secctx(secdata, seclen);
-		if (rc == 0 && new_tsec->sid == ksu_sid)
+		if(rc == 0 && new_tsec->sid == ksu_sid){
 			return 0;
+		}
 	}
 
 	/*
