@@ -141,8 +141,8 @@
 
 	thermal-message {
 		thermal,batt-array-size = "26";
-		thermal,batt-level-screen-on = "0 0 1 1 2 3 4 5 6 7 8 9 10 0 0 1 1 2 3 4 5 6 7 8 9 10";
-		thermal,batt-level-screen-off = "0 0 0 1 1 2 3 4 5 6 7 8 9 0 0 0 1 1 2 3 4 5 6 7 8 9";
+		thermal,batt-level-screen-on = "0 0 0 0 1 1 2 3 4 5 6 7 8 0 0 0 0 1 1 2 3 4 5 6 7 8";
+		thermal,batt-level-screen-off = "0 0 0 0 1 1 2 3 4 5 6 7 8 0 0 0 0 1 1 2 3 4 5 6 7 8";
 	};
 
 };
@@ -323,7 +323,6 @@
 	google,usb-port-tz-name = "usbc-therm-monitor";
 	qcom,auto-recharge-soc;
         qcom,sw-jeita-enable;
-	qcom,dynamic-fv-enable;
 	qcom,thermal-mitigation
 				= <1800000 1600000 1400000 1200000 1000000 1000000 1000000>;
 	qcom,thermal-mitigation-dcp
@@ -758,12 +757,6 @@
 &low_soc {
 	temperature = <10>;
 	hysteresis = <0>;
-	type = "passive";
-};
-
-&ibat_high {
-	temperature = <5000>;
-	hysteresis = <200>;
 	type = "passive";
 };
 
