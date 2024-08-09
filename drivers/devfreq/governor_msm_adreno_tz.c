@@ -447,9 +447,6 @@ static int tz_start(struct devfreq *devfreq)
 	unsigned int version;
 	struct msm_adreno_extended_profile *gpu_profile;
 
-	if (partner_gpu_profile)
-		return -EEXIST;
-
 	gpu_profile = container_of(devfreq->profile,
 			struct msm_adreno_extended_profile,
 			profile);
@@ -471,7 +468,6 @@ static int tz_start(struct devfreq *devfreq)
 		tz_pwrlevels[0] = i;
 	} else {
 		pr_err(TAG "tz_pwrlevels[] is too short\n");
-		partner_gpu_profile = NULL;
 		return -EINVAL;
 	}
 
@@ -479,7 +475,6 @@ static int tz_start(struct devfreq *devfreq)
 				sizeof(version));
 	if (ret != 0 || version > MAX_TZ_VERSION) {
 		pr_err(TAG "tz_init failed\n");
-		partner_gpu_profile = NULL;
 		return ret;
 	}
 
