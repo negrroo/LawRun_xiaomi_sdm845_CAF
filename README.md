@@ -1,7 +1,7 @@
 <h1 align="center">
 <a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAmCrEGBhya7LmdUPuAbOox1LQYDj3ounfX_L8airzGZUMeR8PsjoyGscBdekIYScUmM0na8bPjssiWNkJygBqCV8OnYMnv_VnbV-c6BUt2gKpvl3ysVwY4bAQR0Bl2dabkn2Wu-KOPs0j5zD5aU-TAYcDjquF4VPWGLgxk-j-19e9t0WoT_8zyZiNKOMK/s1600/photo1696790630-removebg-preview.png" style="margin-left: 1em; margin-right: 1em;"><img border="0" data-original-height="2000" data-original-width="2000" height="320" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAmCrEGBhya7LmdUPuAbOox1LQYDj3ounfX_L8airzGZUMeR8PsjoyGscBdekIYScUmM0na8bPjssiWNkJygBqCV8OnYMnv_VnbV-c6BUt2gKpvl3ysVwY4bAQR0Bl2dabkn2Wu-KOPs0j5zD5aU-TAYcDjquF4VPWGLgxk-j-19e9t0WoT_8zyZiNKOMK/s1600/photo1696790630-removebg-preview.png" /></a></p></h1>
 
-<h1 align="center">Hi 👋, I'm Mohammed Elnaggar</h1>
+<h1 align="center">Hi 👋, I'm Mohammed Ahmed Elnaggar</h1>
 <h3 align="center">From Egypt, I'm a Communication Engineer act as a software developer with problem-solving skills in creating and optimizing your device kernel also I'm an autodidact person always intend to learn.</h3>
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=negrroo&label=Profile%20views&color=0e75b6&style=flat" alt="negrroo" /> </p>
