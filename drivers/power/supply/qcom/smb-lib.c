@@ -44,6 +44,7 @@
 				__func__, ##__VA_ARGS__);	\
 	} while (0)
 
+static int bypass_charging = 0;
 
 static bool off_charge_flag;
 static void smblib_wireless_set_enable(struct smb_charger *chg, int enable);
@@ -2008,9 +2009,14 @@ int smblib_vbus_regulator_is_enabled(struct regulator_dev *rdev)
 int smblib_get_prop_input_suspend(struct smb_charger *chg,
 				  union power_supply_propval *val)
 {
-	val->intval
-		= (get_client_vote(chg->usb_icl_votable, USER_VOTER) == 0)
-		 || get_client_vote(chg->dc_suspend_votable, USER_VOTER);
+	if ((get_client_vote(chg->chg_disable_votable, BYPASS_VOTER) == 1)) {
+        	val->intval = 1;
+        } else if (bypass_charging) {
+        	val->intval = 2;
+        } else {
+        	val->intval = 0;
+        }
+
 	return 0;
 }
 
@@ -2390,7 +2396,17 @@ int smblib_set_prop_input_suspend(struct smb_charger *chg,
 	int rc;
 
 	/* vote 0mA when suspended */
-	rc = vote(chg->usb_icl_votable, USER_VOTER, (bool)val->intval, 0);
+	if (val->intval == 1) {
+        	rc = vote(chg->chg_disable_votable, BYPASS_VOTER, 1, 0);
+        	bypass_charging = 0;
+     	} else if (val->intval == 2) {
+        	rc = vote(chg->chg_disable_votable, BYPASS_VOTER, 0, 0);
+        	bypass_charging = 1;
+     	} else {
+        	rc = vote(chg->chg_disable_votable, BYPASS_VOTER, 0, 0);
+        	bypass_charging = 0;
+        }
+
 	if (rc < 0) {
 		smblib_err(chg, "Couldn't vote to %s USB rc=%d\n",
 			(bool)val->intval ? "suspend" : "resume", rc);
@@ -2440,6 +2456,7 @@ int smblib_set_prop_dc_temp_level(struct smb_charger *chg,
 	union power_supply_propval dc_present;
 	union power_supply_propval batt_temp;
 	int rc;
+	int system_temp_level;
 
 	rc = smblib_get_prop_dc_present(chg, &dc_present);
 	if (rc < 0) {
@@ -2468,12 +2485,25 @@ int smblib_set_prop_dc_temp_level(struct smb_charger *chg,
 		return vote(chg->chg_disable_votable,
 			THERMAL_DAEMON_VOTER, true, 0);
 
+	if (get_client_vote(chg->chg_disable_votable, BYPASS_VOTER) == 1) {
+		pr_info("%s bypass charging enabled",__FUNCTION__);
+        	return vote(chg->chg_disable_votable, THERMAL_DAEMON_VOTER, true, 0);
+        }
+
+	system_temp_level = chg->dc_temp_level;
+
+     	if (bypass_charging) {
+        	system_temp_level = chg->dc_temp_level-2;
+        	if (system_temp_level < 0) system_temp_level = 0;
+        	pr_info("%s limited charging enabled %d",__FUNCTION__, system_temp_level);
+     	}
+
 	vote(chg->chg_disable_votable, THERMAL_DAEMON_VOTER, false, 0);
-	if (chg->dc_temp_level == 0)
+	if (system_temp_level == 0)
 		return vote(chg->dc_icl_votable, THERMAL_DAEMON_VOTER, false, 0);
 
 	vote(chg->dc_icl_votable, THERMAL_DAEMON_VOTER, true,
-		chg->thermal_mitigation_dc[chg->dc_temp_level]);
+		chg->thermal_mitigation_dc[system_temp_level]);
 
 	return 0;
 }
