@@ -780,6 +780,18 @@ config SPECULATIVE_PAGE_FAULT
 	 allocating, it is failing its processing and a classic page fault
 	 is then tried.
 
+config LRU_GEN
+	bool "Multi-Gen LRU"
+	depends on MMU
+	help
+	  A high performance LRU framework to reduce kswapd CPU usage.
+
+config LRU_GEN_ENABLED
+	bool "Enable by default"
+	depends on LRU_GEN
+	help
+	  Enable the Multi-Gen LRU by default.
+
 config VMSTAT_INTERVAL
 	int "Default interval in seconds to update vmstat"
 	default 1

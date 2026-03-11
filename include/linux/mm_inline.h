@@ -43,10 +43,22 @@ static __always_inline void update_lru_size(struct lruvec *lruvec,
 #endif
 }
 
+/* BACKPORT:[Cursor] MGLRU - Hook for page addition */
+#ifdef CONFIG_LRU_GEN
+extern void lru_gen_add_page(struct lruvec *lruvec, struct page *page, bool reclaiming);
+extern void lru_gen_del_page(struct lruvec *lruvec, struct page *page, bool reclaiming);
+#else
+static inline void lru_gen_add_page(struct lruvec *lruvec, struct page *page, bool reclaiming) {}
+static inline void lru_gen_del_page(struct lruvec *lruvec, struct page *page, bool reclaiming) {}
+#endif
+
 static __always_inline void add_page_to_lru_list(struct page *page,
 				struct lruvec *lruvec, enum lru_list lru)
 {
 	update_lru_size(lruvec, lru, page_zonenum(page), hpage_nr_pages(page));
+	/* BACKPORT:[Cursor] MGLRU - Add to lru_gen if enabled */
+	if (lru_gen_enabled())
+		lru_gen_add_page(lruvec, page, false);
 	list_add(&page->lru, &lruvec->lists[lru]);
 }
 
@@ -54,6 +66,9 @@ static __always_inline void add_page_to_lru_list_tail(struct page *page,
 				struct lruvec *lruvec, enum lru_list lru)
 {
 	update_lru_size(lruvec, lru, page_zonenum(page), hpage_nr_pages(page));
+	/* BACKPORT:[Cursor] MGLRU - Add to lru_gen if enabled */
+	if (lru_gen_enabled())
+		lru_gen_add_page(lruvec, page, false);
 	list_add_tail(&page->lru, &lruvec->lists[lru]);
 }
 
@@ -61,6 +76,9 @@ static __always_inline void del_page_from_lru_list(struct page *page,
 				struct lruvec *lruvec, enum lru_list lru)
 {
 	list_del(&page->lru);
+	/* BACKPORT:[Cursor] MGLRU - Del from lru_gen if enabled */
+	if (lru_gen_enabled())
+		lru_gen_del_page(lruvec, page, false);
 	update_lru_size(lruvec, lru, page_zonenum(page), -hpage_nr_pages(page));
 }
 
