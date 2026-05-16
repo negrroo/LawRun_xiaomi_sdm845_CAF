@@ -59,6 +59,10 @@ static int zram_bvec_read(struct zram *zram, struct bio_vec *bvec,
 				u32 index, int offset, struct bio *bio);
 
 
+#ifdef CONFIG_ZRAM_ENTROPY
+unsigned long sysctl_zram_entropy_threshold __read_mostly = CONFIG_ZRAM_ENTROPY_THRESHOLD;
+#endif
+
 static int zram_slot_trylock(struct zram *zram, u32 index)
 {
 	return bit_spin_trylock(ZRAM_LOCK, &zram->table[index].flags);
