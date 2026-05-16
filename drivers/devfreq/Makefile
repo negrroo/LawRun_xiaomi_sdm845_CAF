@@ -18,6 +18,8 @@ obj-$(CONFIG_DEVFREQ_GOV_QCOM_BW_HWMON)	+= governor_bw_hwmon.o
 obj-$(CONFIG_DEVFREQ_GOV_QCOM_CACHE_HWMON)	+= governor_cache_hwmon.o
 obj-$(CONFIG_DEVFREQ_GOV_SPDM_HYP)	+= governor_spdm_bw_hyp.o
 obj-$(CONFIG_DEVFREQ_GOV_MEMLAT)       += governor_memlat.o
+obj-$(CONFIG_DEVFREQ_GOV_STATICMAP)	+= governor_staticmap.o
+obj-$(CONFIG_ARM_QCOM_DEVFREQ_QOSLAT)	+= devfreq_qcom_qoslat.o
 
 # DEVFREQ Drivers
 obj-$(CONFIG_ARM_EXYNOS_BUS_DEVFREQ)	+= exynos-bus.o
