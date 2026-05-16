@@ -133,6 +133,10 @@ static unsigned long zero_ul;
 static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
+#ifdef CONFIG_OPLUS_MM_HACKS
+extern int direct_vm_swappiness;
+static int two_hundred = 200;
+#endif /* CONFIG_OPLUS_MM_HACKS */
 static int __maybe_unused one_thousand = 1000;
 #ifdef CONFIG_SCHED_WALT
 static int two_million = 2000000;
@@ -385,8 +389,23 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= &zero,
+#ifdef CONFIG_OPLUS_MM_HACKS
+		.extra2         = &two_hundred,
+#else
 		.extra2		= &one,
+#endif /* CONFIG_OPLUS_MM_HACKS */
 	},
+#ifdef CONFIG_OPLUS_MM_HACKS
+	{
+	        .procname	= "direct_swappiness",
+		.data		= &direct_vm_swappiness,
+		.maxlen 	= sizeof(direct_vm_swappiness),
+		.mode		= 0644,
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1 	= &zero,
+		.extra2 	= &two_hundred,
+	},
+#endif /* CONFIG_OPLUS_MM_HACKS */
 	{
 		.procname	= "sched_initial_task_util",
 		.data		= &sysctl_sched_init_task_load_pct,

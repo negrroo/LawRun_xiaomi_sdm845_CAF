@@ -152,7 +152,15 @@ struct scan_control {
  * From 0 .. 100.  Higher means more swappy.
  */
 
-int vm_swappiness = 20;
+int vm_swappiness = 100;
+
+#ifdef CONFIG_OPLUS_MM_HACKS
+/*
+ * Direct reclaim swappiness, values range from 0 .. 60. Higher means more swappy.
+ */
+int direct_vm_swappiness = 60;
+#endif /* CONFIG_OPLUS_MM_HACKS */
+
 
 /*
  * The total number of pages which are beyond the high watermark within all
@@ -1783,6 +1791,10 @@ putback_inactive_pages(struct lruvec *lruvec, struct list_head *page_list)
  */
 static int current_may_throttle(void)
 {
+#ifdef CONFIG_OPLUS_MM_HACKS
+	if ((current->signal->oom_score_adj < 0))
+		return 0;
+#endif /* CONFIG_OPLUS_MM_HACKS */
 	return !(current->flags & PF_LESS_THROTTLE) ||
 		current->backing_dev_info == NULL ||
 		bdi_write_congested(current->backing_dev_info);
@@ -2169,8 +2181,13 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
 	active = lruvec_lru_size(lruvec, active_lru, sc->reclaim_idx);
 
 	gb = (inactive + active) >> (30 - PAGE_SHIFT);
+#ifdef CONFIG_OPLUS_MM_HACKS
+	if (file && gb)
+		inactive_ratio = min(2UL, int_sqrt(10 * gb));
+#else
 	if (gb)
 		inactive_ratio = int_sqrt(10 * gb);
+#endif /* CONFIG_OPLUS_MM_HACKS */
 	else
 		inactive_ratio = 1;
 
@@ -2220,9 +2237,19 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
 	unsigned long ap, fp;
 	enum lru_list lru;
 
+#ifdef CONFIG_OPLUS_MM_HACKS
+	unsigned long totalswap = total_swap_pages;
+#endif /* CONFIG_OPLUS_MM_HACKS */
+
+#ifdef CONFIG_OPLUS_MM_HACKS
+	if (!current_is_kswapd())
+		swappiness = direct_vm_swappiness;
+	if (!sc->may_swap || (mem_cgroup_get_nr_swap_pages(memcg) <= totalswap>>6)) {
+#else
 	/* If we have no swap space, do not bother scanning anon pages. */
 	if (!sc->may_swap || mem_cgroup_get_nr_swap_pages(memcg) <= 0) {
 		scan_balance = SCAN_FILE;
+#endif /* CONFIG_OPLUS_MM_HACKS */
 		goto out;
 	}
 
