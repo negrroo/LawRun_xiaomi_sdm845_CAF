@@ -1,6 +1,8 @@
 name: Build sdm845 release installer (betar recipe, gcc 11)
 on:
-  workflow_dispatch:
+  push:
+    branches: [stable-4.9.337]
+    paths: ['.github/workflows/build-sdm845-release.yml']
 jobs:
   kernel:
     runs-on: ubuntu-22.04
