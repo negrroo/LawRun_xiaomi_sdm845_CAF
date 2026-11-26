@@ -27,7 +27,7 @@ jobs:
           make O=out LawRun_defconfig
           scripts/config --file out/.config -d CC_WERROR
           yes '' | make O=out oldconfig
-          make O=out -j$(nproc) Image.gz-dtb 2>&1 | tee build.log || make O=out -j$(nproc) Image.gz dtbs 2>&1 | tee -a build.log
+          make O=out -j$(nproc) KCFLAGS='-w -Wno-error' Image.gz-dtb 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
           ls -la out/arch/arm64/boot/
       - name: Package AnyKernel3
         run: |
