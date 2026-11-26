@@ -1,8 +1,6 @@
-name: Build sdm845 release installer (his Station recipe)
+name: Build sdm845 release installer (betar recipe, gcc 11)
 on:
   workflow_dispatch:
-env:
-  TCDIR: /opt/tc
 jobs:
   kernel:
     runs-on: ubuntu-22.04
@@ -13,26 +11,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 1 }
-      - name: Private inputs
-        env: { PAT: "${{ secrets.STATION_PAT }}" }
+      - name: Inputs
         run: |
-          sudo mkdir -p /home/negrroo/Kernel /opt/tc
-          sudo chown -R $USER /home/negrroo /opt/tc
+          sudo mkdir -p /home/negrroo/Kernel
+          sudo chown -R $USER /home/negrroo
           git clone -q --depth 1 https://github.com/negrroo/KernelSU-Next -b next /home/negrroo/Kernel/KernelSU
-          git clone -q --depth 1 https://x-access-token:$PAT@github.com/negrroo/LawRun_Station /opt/station
-          git clone -q --depth 1 https://x-access-token:$PAT@github.com/negrroo/aarch64-linux-android-gcc.4.9.x /opt/tc/gcc
-          git clone -q --depth 1 https://x-access-token:$PAT@github.com/negrroo/arm-linux-gnueabihf-gcc.4.9.x /opt/tc/gccarm
-          sudo apt-get update -q && sudo apt-get install -y -q bc bison flex libssl-dev libelf-dev ccache rsync
+          git clone -q --depth 1 -b ci-overlays https://github.com/negrroo/LawRun_xiaomi_sdm845_CAF /opt/ov
+          sudo apt-get update -q && sudo apt-get install -y -q gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi bc bison flex libssl-dev libelf-dev rsync
       - name: Overlay ${{ matrix.fw }} firmware and build
         run: |
-          S=/opt/station/Script/Build/Specifications
+          S=/opt/ov
           rsync -r $S/Firmwares/${{ matrix.fw }}/ .
           if [ "${{ matrix.fw }}" = Latest ]; then sed -i 's/\(CONFIG_LOCALVERSION="[^"]*\)_O\*/\1_L*/' arch/arm64/configs/LawRun_defconfig; fi
           grep CONFIG_LOCALVERSION= arch/arm64/configs/LawRun_defconfig
-          export PATH=$TCDIR/gccarm/bin:$TCDIR/gcc/bin:$PATH
+          export CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- SUBARCH=arm64
           export KBUILD_BUILD_USER=negrroo KBUILD_BUILD_HOST=lawrun
           make O=kout ARCH=arm64 LawRun_defconfig
-          make -j$(nproc) O=kout ARCH=arm64 CROSS_COMPILE_ARM32=arm-linux-gnueabihf- CROSS_COMPILE=aarch64-linux-android- CC="ccache aarch64-linux-android-gcc" 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
+          scripts/config --file kout/.config -d CC_WERROR
+          yes '' | make O=kout ARCH=arm64 oldconfig
+          make -j$(nproc) O=kout ARCH=arm64 KCFLAGS='-w -Wno-error' Image.gz 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
           cp kout/arch/arm64/boot/Image.gz Image-${{ matrix.fw }}.gz
       - uses: actions/upload-artifact@v4
         if: always()
@@ -50,20 +47,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 1 }
-      - name: Private inputs
-        env: { PAT: "${{ secrets.STATION_PAT }}" }
+      - name: Inputs
         run: |
-          sudo mkdir -p /home/negrroo/Kernel /opt/tc
-          sudo chown -R $USER /home/negrroo /opt/tc
+          sudo mkdir -p /home/negrroo/Kernel
+          sudo chown -R $USER /home/negrroo
           git clone -q --depth 1 https://github.com/negrroo/KernelSU-Next -b next /home/negrroo/Kernel/KernelSU
-          git clone -q --depth 1 https://x-access-token:$PAT@github.com/negrroo/LawRun_Station /opt/station
-          git clone -q --depth 1 https://x-access-token:$PAT@github.com/negrroo/aarch64-linux-android-gcc.4.9.x /opt/tc/gcc
-          git clone -q --depth 1 https://x-access-token:$PAT@github.com/negrroo/arm-linux-gnueabihf-gcc.4.9.x /opt/tc/gccarm
-          sudo apt-get update -q && sudo apt-get install -y -q bc bison flex libssl-dev libelf-dev ccache rsync
+          git clone -q --depth 1 -b ci-overlays https://github.com/negrroo/LawRun_xiaomi_sdm845_CAF /opt/ov
+          sudo apt-get update -q && sudo apt-get install -y -q gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi bc bison flex libssl-dev libelf-dev rsync
       - name: Build DTBs ${{ matrix.code }}
         run: |
           code=${{ matrix.code }}
-          S=/opt/station/Script/Build/Specifications
+          S=/opt/ov
           [ ${code:0:1} = 1 ] && se=With || se=Without
           [ ${code:1:1} = 1 ] && pt=With || pt=Without
           [ ${code:2:1} = 1 ] && gp=Oc || gp=Sk
@@ -73,9 +67,11 @@ jobs:
           rsync -r $S/PixelThermals/$pt/ .
           rsync -r $S/GPU/$gp/ .
           rsync -r $S/Battery/$bt/ .
-          export PATH=$TCDIR/gccarm/bin:$TCDIR/gcc/bin:$PATH
+          export CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- SUBARCH=arm64
           make O=kout ARCH=arm64 LawRun_defconfig
-          make -j$(nproc) O=kout dtbs ARCH=arm64 CROSS_COMPILE_ARM32=arm-linux-gnueabihf- CROSS_COMPILE=aarch64-linux-android- CC="ccache aarch64-linux-android-gcc" 2>&1 | tee dtb.log; test ${PIPESTATUS[0]} -eq 0
+          scripts/config --file kout/.config -d CC_WERROR
+          yes '' | make O=kout ARCH=arm64 oldconfig
+          make -j$(nproc) O=kout ARCH=arm64 KCFLAGS='-w -Wno-error' dtbs 2>&1 | tee dtb.log; test ${PIPESTATUS[0]} -eq 0
           mkdir -p dtbout/$code && cp kout/arch/arm64/boot/dts/qcom/*.dtb dtbout/$code/
           ls dtbout/$code
       - uses: actions/upload-artifact@v4
@@ -105,6 +101,12 @@ jobs:
           for c in ../art/dtb-*/*; do code=$(basename $c); rm -f LawRun-Kernel/kernel/Specific/$code/*.dtb; cp $c/*.dtb LawRun-Kernel/kernel/Specific/$code/; done
           cmp LawRun-Kernel/kernel/Latest/Image.gz LawRun-Kernel/kernel/Old/Image.gz && echo SAME || echo "Latest and Old differ"
           zip -qr9 ../LawRun_sdm845_release_test.zip . -x '.git*'
+          cd ..
+          unzip -Z1 template.zip | sort > a.txt; unzip -Z1 LawRun_sdm845_release_test.zip | sort > b.txt
+          echo "== file list diff template(<) vs new(>)"; diff a.txt b.txt && echo IDENTICAL_LAYOUT
+          echo "== new dtb count per set"; for d in pkg/LawRun-Kernel/kernel/Specific/*; do echo $(basename $d) $(ls $d/*.dtb | wc -l); done
+          echo "== template dtb count per set"; mkdir t && cd t && unzip -q ../template.zip && for d in LawRun-Kernel/kernel/Specific/*; do echo $(basename $d) $(ls $d/*.dtb | wc -l); done; cd ..
+          ls -la pkg/LawRun-Kernel/kernel/Latest pkg/LawRun-Kernel/kernel/Old t/LawRun-Kernel/kernel/Latest t/LawRun-Kernel/kernel/Old
           ls -la ../LawRun_sdm845_release_test.zip
       - uses: actions/upload-artifact@v4
         with:
