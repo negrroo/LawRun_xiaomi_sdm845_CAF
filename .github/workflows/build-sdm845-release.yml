@@ -109,7 +109,7 @@ jobs:
           echo "== new dtb count per set"; for d in pkg/LawRun-Kernel/kernel/Specific/*; do echo $(basename $d) $(ls $d/*.dtb | wc -l); done
           echo "== template dtb count per set"; mkdir t && cd t && unzip -q ../template.zip && for d in LawRun-Kernel/kernel/Specific/*; do echo $(basename $d) $(ls $d/*.dtb | wc -l); done; cd ..
           ls -la pkg/LawRun-Kernel/kernel/Latest pkg/LawRun-Kernel/kernel/Old t/LawRun-Kernel/kernel/Latest t/LawRun-Kernel/kernel/Old
-          ls -la ../LawRun_sdm845_release_test.zip
+          ls -la LawRun_sdm845_release_test.zip
       - uses: actions/upload-artifact@v4
         with:
           name: LawRun-sdm845-release-test
