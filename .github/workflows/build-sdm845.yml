@@ -29,15 +29,25 @@ jobs:
           yes '' | make O=out oldconfig
           make O=out -j$(nproc) KCFLAGS='-w -Wno-error' Image.gz-dtb 2>&1 | tee build.log; test ${PIPESTATUS[0]} -eq 0
           ls -la out/arch/arm64/boot/
-      - name: Package AnyKernel3
+      - name: Package with LawRun installer (22.0 Riyadh template from his Pling store)
         run: |
-          git clone --depth 1 https://github.com/osm0sis/AnyKernel3 ak3
-          cp out/arch/arm64/boot/Image.gz-dtb ak3/ 2>/dev/null || cp out/arch/arm64/boot/Image.gz ak3/
-          cd ak3 && zip -r9 ../LawRun_sdm845_test.zip . -x '.git*' README.md
+          python3 - <<'PY'
+          import json, urllib.request
+          d = json.load(urllib.request.urlopen("https://api.kde-look.org/ocs/v1/content/data/2031080?format=json"))["data"][0]
+          for i in range(1, 80):
+              if d.get("downloadname%d" % i) == "LawRun-845-22.0-Riyadh-A09A15.zip":
+                  open("template_url.txt", "w").write(d["downloadlink%d" % i]); break
+          PY
+          curl -sL -o template.zip "$(cat template_url.txt)"
+          mkdir pkg && cd pkg && unzip -q ../template.zip
+          cp ../out/arch/arm64/boot/Image.gz LawRun-Kernel/kernel/Latest/Image.gz
+          cp ../out/arch/arm64/boot/Image.gz LawRun-Kernel/kernel/Old/Image.gz
+          zip -qr9 ../LawRun_sdm845_installer_test.zip . -x '.git*'
+          cd .. && ls -la LawRun_sdm845_installer_test.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: LawRun-sdm845-test
+          name: LawRun-sdm845-installer-test
           path: |
-            LawRun_*_test.zip
+            LawRun_sdm845_installer_test.zip
             build.log
 # trigger
