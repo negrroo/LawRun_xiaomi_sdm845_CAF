@@ -13,7 +13,7 @@ jobs:
       - name: KernelSU (repo symlinks to his local path /home/negrroo/Kernel/KernelSU)
         run: |
           sudo mkdir -p /home/negrroo/Kernel
-          sudo git clone --depth 1 https://github.com/negrroo/KernelSU /home/negrroo/Kernel/KernelSU
+          sudo git clone --depth 1 -b next https://github.com/negrroo/KernelSU-Next /home/negrroo/Kernel/KernelSU
           ls /home/negrroo/Kernel/KernelSU/kernel | head -5
       - name: Toolchain
         run: |
