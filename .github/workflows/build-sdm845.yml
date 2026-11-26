@@ -1,13 +1,15 @@
 name: Build sdm845 kernel
 on:
-  workflow_dispatch:
-    inputs:
-      device:
-        description: "defconfig (beryllium, dipper or polaris)"
-        default: beryllium
+  push:
+    branches: [stable-4.9.337]
+    paths: ['.github/workflows/build-sdm845.yml']
 jobs:
   build:
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        device: [beryllium, dipper, polaris]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,7 +23,7 @@ jobs:
           export ARCH=arm64 SUBARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
           export KBUILD_BUILD_USER=negrroo KBUILD_BUILD_HOST=lawrun
-          make O=out ${{ github.event.inputs.device }}_defconfig
+          make O=out ${{ matrix.device }}_defconfig
           scripts/config --file out/.config -d CC_WERROR
           make O=out olddefconfig
           make O=out -j$(nproc) Image.gz-dtb 2>&1 | tee build.log || make O=out -j$(nproc) Image.gz dtbs 2>&1 | tee -a build.log
@@ -30,10 +32,10 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/osm0sis/AnyKernel3 ak3
           cp out/arch/arm64/boot/Image.gz-dtb ak3/ 2>/dev/null || cp out/arch/arm64/boot/Image.gz ak3/
-          cd ak3 && zip -r9 ../LawRun_${{ github.event.inputs.device }}_test.zip . -x '.git*' README.md
+          cd ak3 && zip -r9 ../LawRun_${{ matrix.device }}_test.zip . -x '.git*' README.md
       - uses: actions/upload-artifact@v4
         with:
-          name: LawRun-${{ github.event.inputs.device }}-test
+          name: LawRun-${{ matrix.device }}-test
           path: |
             LawRun_*_test.zip
             build.log
