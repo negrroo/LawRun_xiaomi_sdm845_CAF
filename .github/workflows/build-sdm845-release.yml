@@ -102,15 +102,17 @@ jobs:
           cp ../art/kernel-Old/Image-Old.gz LawRun-Kernel/kernel/Old/Image.gz
           for c in ../art/dtb-*/*; do code=$(basename $c); rm -f LawRun-Kernel/kernel/Specific/$code/*.dtb; cp $c/*.dtb LawRun-Kernel/kernel/Specific/$code/; done
           cmp LawRun-Kernel/kernel/Latest/Image.gz LawRun-Kernel/kernel/Old/Image.gz && echo SAME || echo "Latest and Old differ"
-          zip -qr9 ../LawRun_sdm845_release_test.zip . -x '.git*'
+          echo 'v24.0_Rabat | Uv-Build | A09A15 | 2026-11-26' > version
+          zip -qr9 ../LawRun-845-24.0-Rabat-A09A15.zip . -x '.git*'
           cd ..
-          unzip -Z1 template.zip | sort > a.txt; unzip -Z1 LawRun_sdm845_release_test.zip | sort > b.txt
+          unzip -Z1 template.zip | sort > a.txt; unzip -Z1 LawRun-845-24.0-Rabat-A09A15.zip | sort > b.txt
           echo "== file list diff template(<) vs new(>)"; diff a.txt b.txt && echo IDENTICAL_LAYOUT
           echo "== new dtb count per set"; for d in pkg/LawRun-Kernel/kernel/Specific/*; do echo $(basename $d) $(ls $d/*.dtb | wc -l); done
           echo "== template dtb count per set"; mkdir t && cd t && unzip -q ../template.zip && for d in LawRun-Kernel/kernel/Specific/*; do echo $(basename $d) $(ls $d/*.dtb | wc -l); done; cd ..
           ls -la pkg/LawRun-Kernel/kernel/Latest pkg/LawRun-Kernel/kernel/Old t/LawRun-Kernel/kernel/Latest t/LawRun-Kernel/kernel/Old
-          ls -la LawRun_sdm845_release_test.zip
+          ls -la LawRun-845-24.0-Rabat-A09A15.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: LawRun-sdm845-release-test
-          path: LawRun_sdm845_release_test.zip
+          name: LawRun-845-24.0-Rabat-A09A15
+          path: pkg/
+          compression-level: 6
