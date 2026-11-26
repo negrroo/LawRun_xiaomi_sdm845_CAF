@@ -6,10 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        device: [beryllium, dipper, polaris]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,9 +24,8 @@ jobs:
           export ARCH=arm64 SUBARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
           export KBUILD_BUILD_USER=negrroo KBUILD_BUILD_HOST=lawrun
-          make O=out ${{ matrix.device }}_defconfig
+          make O=out LawRun_defconfig
           scripts/config --file out/.config -d CC_WERROR
-          echo 'CONFIG_LITTLE_CPU_MASK=15' >> out/.config
           yes '' | make O=out oldconfig
           make O=out -j$(nproc) Image.gz-dtb 2>&1 | tee build.log || make O=out -j$(nproc) Image.gz dtbs 2>&1 | tee -a build.log
           ls -la out/arch/arm64/boot/
@@ -38,10 +33,10 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/osm0sis/AnyKernel3 ak3
           cp out/arch/arm64/boot/Image.gz-dtb ak3/ 2>/dev/null || cp out/arch/arm64/boot/Image.gz ak3/
-          cd ak3 && zip -r9 ../LawRun_${{ matrix.device }}_test.zip . -x '.git*' README.md
+          cd ak3 && zip -r9 ../LawRun_sdm845_test.zip . -x '.git*' README.md
       - uses: actions/upload-artifact@v4
         with:
-          name: LawRun-${{ matrix.device }}-test
+          name: LawRun-sdm845-test
           path: |
             LawRun_*_test.zip
             build.log
