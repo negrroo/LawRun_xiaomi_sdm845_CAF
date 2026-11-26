@@ -1,0 +1,39 @@
+name: Build sdm845 kernel
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: "defconfig (beryllium, dipper or polaris)"
+        default: beryllium
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi bc bison flex libssl-dev libelf-dev zip python3 ccache
+      - name: Build
+        run: |
+          export ARCH=arm64 SUBARCH=arm64
+          export CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+          export KBUILD_BUILD_USER=negrroo KBUILD_BUILD_HOST=lawrun
+          make O=out ${{ github.event.inputs.device }}_defconfig
+          scripts/config --file out/.config -d CC_WERROR
+          make O=out olddefconfig
+          make O=out -j$(nproc) Image.gz-dtb 2>&1 | tee build.log || make O=out -j$(nproc) Image.gz dtbs 2>&1 | tee -a build.log
+          ls -la out/arch/arm64/boot/
+      - name: Package AnyKernel3
+        run: |
+          git clone --depth 1 https://github.com/osm0sis/AnyKernel3 ak3
+          cp out/arch/arm64/boot/Image.gz-dtb ak3/ 2>/dev/null || cp out/arch/arm64/boot/Image.gz ak3/
+          cd ak3 && zip -r9 ../LawRun_${{ github.event.inputs.device }}_test.zip . -x '.git*' README.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LawRun-${{ github.event.inputs.device }}-test
+          path: |
+            LawRun_*_test.zip
+            build.log
