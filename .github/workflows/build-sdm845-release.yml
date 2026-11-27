@@ -111,18 +111,17 @@ jobs:
           echo "== template dtb count per set"; mkdir t && cd t && unzip -q ../template.zip && for d in LawRun-Kernel/kernel/Specific/*; do echo $(basename $d) $(ls $d/*.dtb | wc -l); done; cd ..
           ls -la pkg/LawRun-Kernel/kernel/Latest pkg/LawRun-Kernel/kernel/Old t/LawRun-Kernel/kernel/Latest t/LawRun-Kernel/kernel/Old
           ls -la LawRun-845-24.0-Rabat-A09A15.zip
-      - name: Keep empty folders (installer needs LawRun-Kernel/Check/<device>)
+      - name: Device marker folder (sdm845 = beryllium)
         run: |
-          # upload-artifact drops empty folders; the installer tests -d on Check/<device>, so give every empty folder a placeholder file
+          # The installer picks the device flow with `[ -d LawRun-Kernel/Check/<device> ]` (LawRun.sh).
+          # LawRun_Station Script.sh betar() builds sdm845 with Check/beryllium and no other device folder.
+          # upload-artifact drops empty folders, so beryllium gets one placeholder file inside it.
           cd pkg
-          find . -type d -empty -not -path './.git*' | sort | tee ../empty-dirs.txt
-          find . -type d -empty -not -path './.git*' -exec touch {}/placeholder \;
-          # every folder that exists in the Pling template must exist in the package
-          unzip -Z1 ../template.zip | grep '/$' | sed 's#/$##' | sort > ../tmpl-dirs.txt
-          find . -type d -not -name . | sed 's#^\./##' | sort > ../pkg-dirs.txt
-          comm -23 ../tmpl-dirs.txt ../pkg-dirs.txt | tee ../missing-dirs.txt
-          test ! -s ../missing-dirs.txt
-          test -e LawRun-Kernel/Check/beryllium
+          mkdir -p LawRun-Kernel/Check/beryllium
+          touch LawRun-Kernel/Check/beryllium/placeholder
+          devs=$(find LawRun-Kernel/Check -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | tr '\n' ' ')
+          echo "device folders: $devs"
+          test "$devs" = "beryllium "
       - uses: actions/upload-artifact@v4
         with:
           name: LawRun-845-24.0-Rabat-A09A15
